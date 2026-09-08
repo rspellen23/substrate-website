@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Accessibility: Substrate</title>
+<meta name="description" content="What Substrate's course-generation pipeline checks automatically for accessibility, and what it doesn't cover.">
+<link rel="canonical" href="https://substrate.io/accessibility.html">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2232%22%20height%3D%2232%22%20viewBox%3D%220%200%2032%2032%22%3E%3Crect%20width%3D%2232%22%20height%3D%2232%22%20rx%3D%228%22%20fill%3D%22%231EB16A%22/%3E%3Cpath%20d%3D%22M9%2010h13M9%2015.5h9.5M9%2020h6.5%22%20stroke%3D%22white%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/icons/apple-touch-icon.png">
+<meta name="theme-color" content="#178650">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://substrate.io/accessibility.html">
+<meta property="og:site_name" content="Substrate">
+<meta property="og:title" content="Accessibility: Substrate">
+<meta property="og:description" content="What Substrate's course-generation pipeline checks automatically for accessibility, and what it doesn't cover.">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Accessibility: Substrate">
+<meta name="twitter:description" content="What Substrate's course-generation pipeline checks automatically for accessibility, and what it doesn't cover.">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color:#0B2C37; background:#F9FAF8; line-height:1.65; }
+  header { background:rgba(249,250,248,0.94); border-bottom:1px solid rgba(11,44,55,0.07); padding:18px 48px; }
+  header a { display:inline-flex; align-items:center; gap:10px; text-decoration:none; }
+  .logo-mark { width:32px; height:32px; background:#178650; border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  header span { font-size:17px; font-weight:700; letter-spacing:-0.5px; color:#0B2C37; }
+  main { max-width:760px; margin:0 auto; padding:56px 48px 96px; }
+  h1 { font-size:36px; font-weight:800; letter-spacing:-1px; margin-bottom:12px; }
+  .updated { font-size:13px; color:#5E7A82; margin-bottom:40px; }
+  h2 { font-size:19px; font-weight:700; margin-top:36px; margin-bottom:10px; letter-spacing:-0.3px; }
+  p, li { font-size:15px; color:#3E5A62; }
+  ul { margin:10px 0 10px 22px; }
+  a { color:#178650; }
+  code { background:#EEF3F0; padding:1px 6px; border-radius:4px; font-size:13px; }
+  footer { border-top:1px solid rgba(11,44,55,0.07); padding:32px 48px; text-align:center; font-size:13px; color:#5E7A82; }
+  .legal-links { margin-bottom:10px; }
+  .legal-links a { color:#178650; text-decoration:none; margin:0 10px; }
+</style>
+</head>
+<body>
+
+<header>
+  <a href="Substrate.html">
+    <div class="logo-mark"><svg width="17" height="13" viewBox="0 0 17 13" fill="none"><path d="M2 2h13M2 6.5h9.5M2 11h6.5" stroke="white" stroke-width="2" stroke-linecap="round"></path></svg></div>
+    <span>Substrate</span>
+  </a>
+</header>
+
+<main>
+  <h1>Accessibility</h1>
+  <div class="updated">Last updated: August 26, 2026</div>
+
+  <p>Substrate builds accessibility checks into the course-generation pipeline itself, so a course starts from a stronger baseline than most authoring tools produce by default. This page describes exactly what is automated today (and, just as importantly, what it doesn't cover), so you can plan any additional review your compliance requirements call for.</p>
+
+  <h2>What's checked automatically on every build</h2>
+  <ul>
+    <li><strong>Image alt text</strong>: every content image is checked for missing or non-descriptive alt text; Substrate drafts alt text at generation time so images aren't shipped undescribed.</li>
+    <li><strong>Heading order</strong>: the generated document outline is checked so headings never skip a level (e.g. an h1 followed directly by an h3), which is what lets screen-reader users navigate by heading.</li>
+    <li><strong>Color contrast</strong>: your brand's text/background color pairs are checked against WCAG AA thresholds (4.5:1 for normal text, 3:1 for large text) before the course ships.</li>
+    <li><strong>Assessment controls</strong>: knowledge-check questions and answer options are checked to ensure every control has a real, readable label for assistive technology.</li>
+  </ul>
+
+  <h2>Built into the player experience</h2>
+  <ul>
+    <li><strong>Keyboard operability</strong>: interactive blocks (knowledge checks, matching, drag-and-drop, quizzes) are operable via keyboard, not pointer-only.</li>
+    <li><strong>Reduced motion</strong>: every animation and entrance effect in the player honors your operating system's "reduce motion" setting; disabling it never blocks content or functionality.</li>
+    <li><strong>Local captions</strong>: video and audio blocks can be auto-captioned, giving deaf and hard-of-hearing learners a text alternative without depending on a third-party media service.</li>
+  </ul>
+
+  <h2>What this is and isn't</h2>
+  <p>These checks are a strong, automated <strong>floor</strong>, not a substitute for a full accessibility audit. They catch the most common and highest-impact gaps, but automated tooling cannot verify every WCAG success criterion: things like the accuracy of AI-drafted alt text, the logical reading order of complex layouts, or full screen-reader walkthroughs still benefit from human review. Findings are surfaced as warnings so you can fix them before publishing; they do not block a build, so it remains your responsibility to review and address them for content that must meet a specific compliance standard (e.g. WCAG 2.1 AA, Section 508).</p>
+
+  <h2>Reporting an issue</h2>
+  <p>If you or your learners encounter an accessibility barrier in a Substrate-generated course or in the Substrate product itself, contact us at <a href="mailto:hello@substrate.io">hello@substrate.io</a> and we'll work with you to address it.</p>
+</main>
+
+<footer>
+  <nav class="legal-links">
+    <a href="privacy.html">Privacy</a>·<a href="terms.html">Terms</a>·<a href="security.html">Security</a>
+  </nav>
+  © <span id="y"></span> Substrate. All rights reserved.
+</footer>
+<script>document.getElementById('y').textContent = new Date().getFullYear();</script>
+</body>
+</html>

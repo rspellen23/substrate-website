@@ -1,0 +1,26 @@
+# Substrate
+
+> Substrate turns your Markdown or Word documents into branded, SCORM- and
+> cmi5-ready microlearning courses. Upload your content, generate, publish to
+> any LMS.
+
+Substrate converts source documents (Markdown or Word today) into
+structured, sequenced microlearning courses with automatically-generated
+knowledge checks, then packages them for any LMS or LRS that supports
+SCORM 1.2, SCORM 2004, or cmi5/xAPI — including Workday Learning,
+Cornerstone, Docebo, and SCORM Cloud. Courses ship with automated WCAG
+conformance checks (alt text, heading order, contrast). Pricing is one
+flat-rate team subscription with unlimited authors, not per-seat.
+
+## Pages
+
+- [Home](https://substrate.io/): product overview, how it works, FAQ, and
+  the lead-capture form for a demo.
+- [Privacy Policy](https://substrate.io/privacy.html)
+- [Terms of Service](https://substrate.io/terms.html)
+- [Security](https://substrate.io/security.html)
+- [Accessibility Statement](https://substrate.io/accessibility.html)
+
+## Contact
+
+hello@substrate.io
