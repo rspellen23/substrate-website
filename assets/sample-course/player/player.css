@@ -1,0 +1,2312 @@
+/* Course Player — block + layout styles. Brand values come only from ../brand/tokens.css. */
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: var(--brand-font-body);
+  color: var(--brand-ink);
+  background: var(--brand-page-bg);
+  line-height: 1.6;
+  font-size: 18px;
+  -webkit-font-smoothing: antialiased;
+  /* Contain the transient horizontal offset of slide-in entrance animations so
+     they never flash a horizontal scrollbar on narrow viewports / LMS iframes.
+     'clip' (not 'hidden') avoids creating a scroll container, so the sticky
+     topbar keeps working. */
+  overflow-x: clip;
+}
+img { max-width: 100%; height: auto; display: block; }
+
+/* ---- App chrome ---- */
+.nv-topbar {
+  display: flex; align-items: center; gap: 14px;
+  padding: 12px 22px; background: var(--brand-heading); color: var(--brand-light);
+  position: sticky; top: 0; z-index: 20;
+}
+.nv-topbar img { height: 26px; }
+.nv-topbar .nv-title { font-family: var(--brand-font-head); font-weight: 700; font-size: 1.15rem; letter-spacing: .3px; }
+.nv-skip { position: absolute; left: 8px; top: -48px; z-index: 1100; background: var(--brand-accent);
+  color: #fff; padding: .5rem .9rem; border-radius: 6px; font-weight: 600; text-decoration: none;
+  transition: top .15s ease; }
+.nv-skip:focus { top: 8px; outline: 2px solid #fff; outline-offset: 2px; }
+.nv-main:focus { outline: none; }
+.nv-progress { flex: 1; height: 6px; background: rgba(255,255,255,.18); border-radius: 99px; overflow: hidden; }
+.nv-progress > span { display: block; height: 100%; width: 0; background: var(--brand-accent); transition: width .35s ease; }
+/* points/XP overlay (gamification #3) — a compact motivational pill in the topbar; hidden
+   until the player confirms the course has scorable blocks. Purely cosmetic. */
+.nv-xp { display: inline-flex; align-items: center; gap: 6px; flex: none; white-space: nowrap;
+  font-size: .82rem; font-weight: 600; line-height: 1; padding: 5px 11px; border-radius: 99px;
+  background: rgba(255,255,255,.14); color: var(--brand-light); }
+.nv-xp[hidden] { display: none; }
+.nv-xp .nv-xp-star { color: var(--brand-accent); }
+.nv-xp .nv-xp-pts { font-variant-numeric: tabular-nums; transition: transform .2s ease; }
+.nv-xp .nv-xp-sep { opacity: .5; }
+.nv-xp .nv-xp-tier { color: var(--brand-accent); }
+.nv-xp.nv-xp--up { animation: nv-xp-pop .6s ease; }
+.nv-xp.nv-xp--up .nv-xp-pts { transform: scale(1.25); }
+@keyframes nv-xp-pop { 0% { box-shadow: 0 0 0 0 var(--brand-accent); } 60% { box-shadow: 0 0 0 6px transparent; } 100% { box-shadow: 0 0 0 0 transparent; } }
+@media (prefers-reduced-motion: reduce) { .nv-xp.nv-xp--up { animation: none; } .nv-xp .nv-xp-pts { transition: none; } }
+
+/* confetti celebration overlay (gamification #6) — the player appends an ad-hoc full-viewport
+   canvas for ~1.5s on a celebration moment, then removes it. Non-interactive + above content;
+   the player already skips it under prefers-reduced-motion (belt-and-suspenders hide here too). */
+.nv-confetti { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999; }
+@media (prefers-reduced-motion: reduce) { .nv-confetti { display: none; } }
+
+.nv-main { max-width: var(--brand-content-width); margin: 0 auto; padding: 0 22px 120px; }
+
+/* ---- Cover / hero ---- */
+.nv-hero { position: relative; margin: 0 -22px 2rem; }
+.nv-hero img { width: 100%; max-height: 360px; object-fit: cover; }
+.nv-hero .nv-hero-cap {
+  position: absolute; inset: auto 0 0 0; padding: 28px 22px;
+  background: linear-gradient(transparent, rgba(11,44,55,.82));
+  color: var(--brand-light);
+}
+.nv-hero .nv-hero-cap h1 { font-family: var(--brand-font-head); margin: 0; font-size: 2.4rem; }
+
+/* ---- Blocks (generic) ---- */
+.nv-block { margin: var(--brand-gap) 0; }
+.nv-block--tint { background: var(--brand-surface); border-radius: var(--brand-radius); padding: 1.4rem 1.6rem; }
+
+.nv-h1, .nv-h2, .nv-h3 { font-family: var(--brand-font-head); color: var(--brand-heading); line-height: 1.2; margin: .4em 0; }
+.nv-h1 { font-size: 2.3rem; font-weight: 700; }
+.nv-h2 { font-size: 1.8rem; font-weight: 700; }
+.nv-h3 { font-size: 1.35rem; font-weight: 700; color: var(--brand-accent-ink); }
+
+/* heading "band" (Rise put headings on a navy bar) */
+.nv-band {
+  background: var(--brand-band-bg); color: var(--brand-band-ink);
+  border-radius: var(--brand-radius); padding: 1.1rem 1.4rem; margin: var(--brand-gap) 0;
+}
+.nv-band .nv-h1, .nv-band .nv-h2, .nv-band .nv-h3 { color: var(--brand-band-ink); margin: 0; }
+
+.nv-p { margin: .6rem 0; }
+.nv-p a { color: var(--brand-accent-ink); }
+
+/* image variants */
+.nv-figure { margin: var(--brand-gap) 0; }
+.nv-figure img { border-radius: var(--brand-radius); width: 100%; }
+.nv-figure figcaption { color: var(--brand-ink-soft); font-size: .9rem; margin-top: .5rem; text-align: center; }
+.nv-aside { display: grid; grid-template-columns: 1fr 1fr; gap: 1.6rem; align-items: center; margin: var(--brand-gap) 0; }
+.nv-aside.right { direction: rtl; } .nv-aside.right > * { direction: ltr; }
+.nv-aside img { border-radius: var(--brand-radius); }
+.nv-aside--profile, .nv-aside--image-panel {
+  background: var(--brand-light); border: 1px solid var(--brand-line);
+  border-radius: var(--brand-radius-lg); padding: 1rem;
+  box-shadow: 0 8px 24px rgba(11,44,55,.08);
+}
+.nv-aside--profile { grid-template-columns: minmax(180px, .72fr) 1.28fr; }
+.nv-aside--profile img { aspect-ratio: 1 / 1; object-fit: cover; border-radius: 999px; max-width: 260px; justify-self: center; }
+.nv-aside--image-panel { position: relative; overflow: hidden; padding: 1.2rem; }
+.nv-aside--image-panel::before {
+  content: ""; position: absolute; inset: 0; z-index: 0;
+  background: linear-gradient(135deg, var(--brand-surface), var(--brand-light));
+}
+.nv-aside--image-panel > * { position: relative; z-index: 1; }
+.nv-aside--image-panel .nv-p { background: rgba(255,255,255,.9); border-left: 5px solid var(--brand-accent); border-radius: var(--brand-radius); padding: 1rem 1.1rem; }
+@media (max-width: 680px){ .nv-aside { grid-template-columns: 1fr; } }
+
+/* ---- Media: video / audio / embed ---- */
+.nv-video, .nv-audio, .nv-embed { margin: var(--brand-gap) 0; }
+.nv-video video { width: 100%; border-radius: var(--brand-radius); display: block; background: #000; }
+.nv-audio audio { width: 100%; }
+.nv-embed-frame {
+  position: relative; aspect-ratio: var(--nv-aspect, 16/9);
+  overflow: hidden; border-radius: var(--brand-radius); background: var(--brand-surface);
+}
+.nv-embed-frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.nv-video figcaption, .nv-audio figcaption, .nv-embed figcaption {
+  color: var(--brand-ink-soft); font-size: .9rem; margin-top: .5rem; text-align: center;
+}
+.nv-transcript { margin-top: .6rem; font-size: .95rem; }
+.nv-transcript summary { cursor: pointer; color: var(--brand-accent-ink); font-weight: 600; }
+.nv-transcript .nv-p { margin-top: .5rem; }
+
+/* impact: note (callout) + statement */
+.nv-note {
+  background: var(--brand-note-bg); border-left: 6px solid var(--brand-note-border);
+  border-radius: 10px; padding: 1.1rem 1.3rem; margin: var(--brand-gap) 0;
+}
+.nv-statement {
+  text-align: center; font-family: var(--brand-font-head); font-weight: 700;
+  font-size: 1.6rem; color: var(--brand-heading); padding: 1.2rem 1rem; margin: var(--brand-gap) 0;
+}
+.nv-statement--mission, .nv-statement--key-concept {
+  background: var(--brand-light); border: 1px solid var(--brand-line);
+  border-radius: var(--brand-radius-lg); box-shadow: 0 8px 24px rgba(11,44,55,.08);
+}
+.nv-statement--mission {
+  border-left: 8px solid var(--nv-accent, var(--brand-accent));
+  text-align: left; font-size: 1.75rem; padding: 1.35rem 1.55rem;
+}
+.nv-statement--key-concept {
+  position: relative; padding: 1.4rem 1.55rem 1.4rem 4.2rem; text-align: left;
+}
+.nv-statement--key-concept::before {
+  content: "!"; position: absolute; left: 1.25rem; top: 50%; transform: translateY(-50%);
+  width: 2.1rem; height: 2.1rem; border-radius: 999px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--nv-accent, var(--brand-accent)); color: var(--brand-light);
+  font-family: var(--brand-font-head); font-weight: 800;
+}
+
+/* lists / tables */
+.nv-list { margin: var(--brand-gap) 0; padding-left: 1.4rem; }
+.nv-list li { margin: .4rem 0; }
+.nv-table-wrap { overflow-x: auto; margin: var(--brand-gap) 0; }
+.nv-table-wrap table { border-collapse: collapse; width: 100%; }
+.nv-table-wrap th, .nv-table-wrap td { border: 1px solid var(--brand-line); padding: .6rem .8rem; text-align: left; }
+.nv-table-wrap th { background: var(--brand-heading); color: var(--brand-light); font-family: var(--brand-font-head); }
+.nv-table-wrap tr:nth-child(even) td { background: var(--brand-surface); }
+.nv-divider { height: 1px; background: var(--brand-line); border: 0; margin: 2rem 0; }
+
+/* ---- Transition band (brand ribbon wave divider) ---- */
+.nv-transition { margin: var(--brand-gap) 0; line-height: 0; }
+.nv-transition img { width: 100%; height: auto; display: block; border-radius: 0; }
+
+/* ---- Colored section (solid brand bg, white text), bracketed by matching waves ---- */
+/* Waves directly adjacent to a section are flush (no gap) so the color flows in/out. */
+.nv-section { padding: .5rem 0 1rem; scroll-margin-top: 5rem; }
+[class*="nv-section--"] { background: var(--brand-accent); color: var(--brand-light); }
+[class*="nv-section--"] :where(.nv-h1,.nv-h2,.nv-h3,.nv-p,strong,em,a,li) { color: var(--brand-light); }
+/* per-domain band body color — matches the lead/tail wave art. Falls back to the
+   brand accent (dark→heading) for brands that ship no section palette, so their
+   sections render exactly as before. Same specificity as the rule above → keep AFTER it. */
+.nv-section--green { background: var(--sec-green, var(--brand-accent)); }
+.nv-section--teal  { background: var(--sec-teal,  var(--brand-accent)); }
+.nv-section--blue  { background: var(--sec-blue,  var(--brand-accent)); }
+.nv-section--gold  { background: var(--sec-gold,  var(--brand-accent)); }
+.nv-section--dark  { background: var(--sec-dark,  var(--brand-heading)); }
+.nv-section--white { background: var(--brand-light); border-block: 2px solid var(--brand-line); }
+.nv-section--green, .nv-section--blue, .nv-section--gold, .nv-section--white { color: var(--brand-heading); }
+.nv-section--green :where(.nv-h1,.nv-h2,.nv-h3,.nv-p,strong,em,a,li),
+.nv-section--blue :where(.nv-h1,.nv-h2,.nv-h3,.nv-p,strong,em,a,li),
+.nv-section--gold :where(.nv-h1,.nv-h2,.nv-h3,.nv-p,strong,em,a,li),
+.nv-section--white :where(.nv-h1,.nv-h2,.nv-h3,.nv-p,strong,em,a,li) {
+  color: var(--brand-heading);
+}
+/* Content sits in LIGHT cards on the colored band for contrast (was same-color-on-band).
+   The band shows around/between the cards + carries the white topic header (statement).
+   Two-class selectors (`.nv-section .nv-kc` = higher specificity) so they beat each block's
+   own `background: var(--brand-band-bg)` defined later in this file. */
+.nv-section .nv-kc, .nv-section .nv-note, .nv-section .nv-sort, .nv-section .nv-match,
+.nv-section .nv-seq, .nv-section .nv-fill, .nv-section .nv-drag, .nv-section .nv-hotspot,
+.nv-section .nv-wordsearch, .nv-section .nv-crossword,
+.nv-section .nv-cmp-panel, .nv-section .nv-step,
+.nv-section .nv-aside--profile, .nv-section .nv-aside--image-panel,
+.nv-section .nv-statement--mission, .nv-section .nv-statement--key-concept,
+.nv-section .nv-objectives, .nv-section .nv-card, .nv-section .nv-tl-item,
+.nv-section .nv-acc-item, .nv-section .nv-ig-card, .nv-section .nv-ig-goal,
+.nv-section .nv-wof, .nv-section .nv-quizboard {
+  background: var(--brand-light); color: var(--brand-ink);
+}
+/* dark text inside the light cards (the section rule above forces white on nested text) */
+.nv-section .nv-kc-prompt, .nv-section .nv-kc-hint,
+.nv-section .nv-kc-prompt strong, .nv-section .nv-kc-prompt em,
+.nv-section .nv-kc-opt, .nv-section .nv-kc-opt strong, .nv-section .nv-kc-opt em,
+.nv-section .nv-note, .nv-section .nv-note p, .nv-section .nv-note strong, .nv-section .nv-note em,
+.nv-section .nv-cmp-panel, .nv-section .nv-cmp-panel p, .nv-section .nv-cmp-panel li,
+.nv-section .nv-cmp-sub, .nv-section .nv-cmp-callout,
+.nv-section .nv-step, .nv-section .nv-step p, .nv-section .nv-step li, .nv-section .nv-step-title,
+.nv-section .nv-aside--profile, .nv-section .nv-aside--profile p,
+.nv-section .nv-aside--image-panel, .nv-section .nv-aside--image-panel p,
+.nv-section .nv-statement--mission, .nv-section .nv-statement--key-concept,
+.nv-section .nv-objectives, .nv-section .nv-objectives p, .nv-section .nv-objectives li,
+.nv-section .nv-card, .nv-section .nv-card p, .nv-section .nv-card li,
+.nv-section .nv-tl-item, .nv-section .nv-tl-item p, .nv-section .nv-tl-item li,
+.nv-section .nv-acc-item, .nv-section .nv-acc-item p, .nv-section .nv-acc-item li,
+.nv-section .nv-ig-card, .nv-section .nv-ig-card p, .nv-section .nv-ig-card li,
+.nv-section .nv-ig-goal, .nv-section .nv-ig-goal p, .nv-section .nv-ig-goal li,
+.nv-section .nv-wof, .nv-section .nv-wof p, .nv-section .nv-wof li,
+.nv-section .nv-quizboard, .nv-section .nv-quizboard p, .nv-section .nv-quizboard li,
+.nv-section .nv-int-hint,
+.nv-section .nv-match-item, .nv-section .nv-seq-item, .nv-section .nv-sort-item,
+.nv-section .nv-drag-label, .nv-section .nv-drag-zone-title {
+  color: var(--brand-ink);
+}
+/* Feedback status regions ALSO sit on the light card, but the section rule above
+   (which forces white on every nested strong/em/a/li) whitelisted the prompt/opt/
+   note/item text and OMITTED the *-fb divs — so a bold word inside feedback
+   ("except", "Disabled") rendered light-on-light = invisible. Give the feedback
+   text + its emphasis dark ink too. A1 (2026-07-15 live review). */
+.nv-section .nv-kc-fb, .nv-section .nv-kc-fb strong, .nv-section .nv-kc-fb em,
+.nv-section .nv-sort-fb, .nv-section .nv-sort-fb strong, .nv-section .nv-sort-fb em,
+.nv-section .nv-match-fb, .nv-section .nv-match-fb strong, .nv-section .nv-match-fb em,
+.nv-section .nv-seq-fb, .nv-section .nv-seq-fb strong, .nv-section .nv-seq-fb em,
+.nv-section .nv-fill-fb, .nv-section .nv-fill-fb strong, .nv-section .nv-fill-fb em,
+.nv-section .nv-drag-fb, .nv-section .nv-drag-fb strong, .nv-section .nv-drag-fb em,
+.nv-section .nv-hotspot-fb, .nv-section .nv-hotspot-fb strong, .nv-section .nv-hotspot-fb em,
+.nv-section .nv-ws-fb, .nv-section .nv-ws-fb strong, .nv-section .nv-ws-fb em,
+.nv-section .nv-cw-fb, .nv-section .nv-cw-fb strong, .nv-section .nv-cw-fb em {
+  color: var(--brand-ink);
+}
+/* Option pills / dropzones get a visible outline on the light card. */
+.nv-section .nv-kc-opt { border-color: var(--brand-line); }
+/* The topic header (statement) reads as a white title on the colored band. */
+[class*="nv-section--"] .nv-statement { color: var(--brand-light); }
+.nv-section--green .nv-statement,
+.nv-section--blue .nv-statement,
+.nv-section--gold .nv-statement,
+.nv-section--white .nv-statement { color: var(--brand-heading); }
+/* The slide-title bar that INTRODUCES a graded section takes that section's color
+   (band body + wave), instead of the default green, so the title, wave, and band match.
+   :has() picks up the following section; browsers without it keep the default band color
+   (graceful — no breakage). Covers both with-wave and no-wave (transitionless) brands. */
+.nv-band:has(+ .nv-transition + .nv-section--dark),  .nv-band:has(+ .nv-section--dark)  { background: var(--sec-dark,  var(--brand-heading)); }
+.nv-band:has(+ .nv-transition + .nv-section--teal),  .nv-band:has(+ .nv-section--teal)  { background: var(--sec-teal,  var(--brand-accent)); }
+.nv-band:has(+ .nv-transition + .nv-section--green), .nv-band:has(+ .nv-section--green) { background: var(--sec-green, var(--brand-accent)); }
+.nv-band:has(+ .nv-transition + .nv-section--blue),  .nv-band:has(+ .nv-section--blue)  { background: var(--sec-blue,  var(--brand-accent)); }
+.nv-band:has(+ .nv-transition + .nv-section--gold),  .nv-band:has(+ .nv-section--gold)  { background: var(--sec-gold,  var(--brand-accent)); }
+.nv-band:has(+ .nv-section--white) { background: var(--brand-light); border: 2px solid var(--brand-line); color: var(--brand-heading); }
+.nv-band:has(+ .nv-transition + .nv-section--green) .nv-h3,
+.nv-band:has(+ .nv-section--green) .nv-h3,
+.nv-band:has(+ .nv-transition + .nv-section--blue) .nv-h3,
+.nv-band:has(+ .nv-section--blue) .nv-h3,
+.nv-band:has(+ .nv-transition + .nv-section--gold) .nv-h3,
+.nv-band:has(+ .nv-section--gold) .nv-h3 { color: var(--brand-heading); }
+/* A section's note callout matches the width of the bank's question cards (the bank
+   indents its children by the block padding; inset the note the same 22px so all boxes line up). */
+.nv-section > .nv-note { margin-left: 22px; margin-right: 22px; }
+.nv-section > .nv-band { background: transparent; margin-top: 0; }
+/* Group a title band with the CARD it introduces — a Knowledge-check cluster or a card-style
+   review game (all share the --brand-band-bg surface). They join into ONE card: the band is the
+   heading bar (squared bottom, no gap) and the card squares its top, so the title box blends into
+   the section/game instead of floating as a separate box above it (James 2026-07-24). */
+.nv-band:has(+ .nv-kc), .nv-band:has(+ .nv-drag), .nv-band:has(+ .nv-wof),
+.nv-band:has(+ .nv-crossword), .nv-band:has(+ .nv-wordsearch),
+.nv-band:has(+ .nv-quizboard), .nv-band:has(+ .nv-speedstreak) {
+  margin-bottom: 0; padding-bottom: .6rem;
+  border-bottom-left-radius: 0; border-bottom-right-radius: 0;
+}
+.nv-band + .nv-kc, .nv-band + .nv-drag, .nv-band + .nv-wof, .nv-band + .nv-crossword,
+.nv-band + .nv-wordsearch, .nv-band + .nv-quizboard, .nv-band + .nv-speedstreak {
+  margin-top: 0; border-top-left-radius: 0; border-top-right-radius: 0;
+}
+/* FLUSH LAYOUT — `*Layout:* flush` (James, 2026-07-27). Every block butts against the next with NO
+   gap and ALL corners squared, so a section's colored background flows CONTINUOUSLY behind the whole
+   cluster (the generated quiz/exam template). Scoped to the body data-attr so normal gapped courses
+   are unchanged. Each section leads with its matching wave graphic, so nothing needs rounding. */
+[data-layout="flush"] .nv-block,
+[data-layout="flush"] .nv-kc,
+[data-layout="flush"] .nv-band,
+[data-layout="flush"] .nv-note { border-radius: 0; }
+/* kill inter-block vertical gaps everywhere the blocks stack (main flow, inside sections, inside gates) */
+[data-layout="flush"] .nv-main > *,
+[data-layout="flush"] .nv-section > *,
+[data-layout="flush"] .nv-gated > *,
+[data-layout="flush"] .nv-block { margin-top: 0; margin-bottom: 0; }
+/* a COLORED review-game section = a 30px colored FRAME; its interior blocks fit WITHIN and sit flush,
+   with no separating borders, so the title band and game read as one coherent entity on the frame. */
+[data-layout="flush"] [class*="nv-section--"] { padding: 30px; }
+[data-layout="flush"] [class*="nv-section--"] > .nv-block { margin: 0; border-left: 0; border-right: 0; }
+[data-layout="flush"] [class*="nv-section--"] > .nv-band { border-top: 0; border-bottom: 0; }
+/* The title band OWNS its background (navy) + ink (white) even inside a colored section. The
+   section's transparent-band override is what created the contrast dependency; re-assert the band's
+   own surface so it is legible regardless of the frame color behind it. */
+[data-layout="flush"] .nv-section > .nv-band {
+  background: var(--brand-band-bg); color: var(--brand-band-ink);
+}
+/* real class selectors (not :where) so the band's own white ink OUT-SPECIFIES the legacy
+   `.nv-section--<color> > .nv-band .nv-hN { color: heading }` tint rules — otherwise the heading is
+   forced to navy on the navy band (text == background). The band owns BOTH its bg and its ink. */
+[data-layout="flush"] .nv-section > .nv-band .nv-h1,
+[data-layout="flush"] .nv-section > .nv-band .nv-h2,
+[data-layout="flush"] .nv-section > .nv-band .nv-h3,
+[data-layout="flush"] .nv-section > .nv-band .nv-p {
+  color: var(--brand-band-ink);
+}
+/* Knowledge checks bridge one game to the next on the BLANK white page (games are the only elements
+   in colored sections). So the KC owns a white-page surface + dark ink instead of the default navy
+   card: options get a visible border to read as pills on white, and feedback gets a light surface so
+   it stays legible on white. Every element still owns its own background + contrasting ink. */
+[data-layout="flush"] .nv-kc { background: transparent; color: var(--brand-ink); }
+[data-layout="flush"] .nv-kc-opt { border-color: var(--brand-line); }
+[data-layout="flush"] .nv-kc-fb { background: var(--brand-surface); color: var(--brand-ink); }
+/* A cumulative-EXAM segment is a COLORED graded section that CONTAINS its question bank — unlike
+   the quiz, whose KCs sit on the white page BETWEEN colored game sections. A KC INSIDE a colored
+   section must OWN a light card + dark ink: the transparent rule above assumes the white page and
+   would drop dark ink onto the segment's own color (invisible on the dark segment). Scoped to KCs
+   inside a colored section, so quiz KCs (never inside one) are untouched. Every element owns its
+   background + contrasting ink [[feedback_element_owns_background_contrast]]. */
+[data-layout="flush"] [class*="nv-section--"] .nv-kc {
+  background: var(--brand-light); color: var(--brand-ink);
+}
+[data-layout="flush"] [class*="nv-section--"] .nv-kc-fb { background: var(--brand-surface); }
+/* Transparent games (hangman/game-show/memory-match) sit on the section surface — let the title
+   band blend into that same surface (no filled box) rather than floating above the game. */
+.nv-band:has(+ .nv-hangman), .nv-band:has(+ .nv-gs), .nv-band:has(+ .nv-mm) {
+  background: transparent; color: var(--brand-heading); margin-bottom: 0; padding-bottom: .2rem;
+}
+.nv-band:has(+ .nv-hangman) :where(.nv-h1,.nv-h2,.nv-h3),
+.nv-band:has(+ .nv-gs) :where(.nv-h1,.nv-h2,.nv-h3),
+.nv-band:has(+ .nv-mm) :where(.nv-h1,.nv-h2,.nv-h3) { color: var(--brand-heading); }
+.nv-section > .nv-band {
+  border: 2px solid currentColor; border-radius: var(--brand-radius);
+  padding: .95rem 1.25rem; margin-left: 22px; margin-right: 22px;
+}
+.nv-section > .nv-band .nv-h1,
+.nv-section > .nv-band .nv-h2,
+.nv-section > .nv-band .nv-h3 { color: var(--brand-light); }
+.nv-section--green > .nv-band .nv-h1,
+.nv-section--green > .nv-band .nv-h2,
+.nv-section--green > .nv-band .nv-h3,
+.nv-section--blue > .nv-band .nv-h1,
+.nv-section--blue > .nv-band .nv-h2,
+.nv-section--blue > .nv-band .nv-h3,
+.nv-section--gold > .nv-band .nv-h1,
+.nv-section--gold > .nv-band .nv-h2,
+.nv-section--gold > .nv-band .nv-h3,
+.nv-section--white > .nv-band .nv-h1,
+.nv-section--white > .nv-band .nv-h2,
+.nv-section--white > .nv-band .nv-h3 { color: var(--brand-heading); }
+.nv-section--white > .nv-band { background: var(--brand-light); border-color: var(--brand-line); }
+.nv-section .nv-block { padding-left: 22px; padding-right: 22px; }
+.nv-transition + .nv-section, .nv-section + .nv-transition { margin-top: 0; }
+.nv-transition.is-section-lead { margin: var(--brand-gap) 0 0; }
+.nv-transition.is-section-tail { margin: 0 0 var(--brand-gap); }
+
+/* ---- Section pager (opt-in `*Paged:* on`; player.js injects .nv-page wrappers + Next) ----
+   Only paged courses ever carry `.nv-page`, so every rule below is inert for an unpaged
+   scroll — keeping non-paged sectioned courses byte-identical (the sibling :has() band
+   recolor above still applies to them). */
+.nv-page[hidden] { display: none; }
+.nv-page-nav { text-align: center; margin: 2.4rem 0 1rem; }
+.nv-page-count { display: block; margin-bottom: .7rem; font-size: .85rem; letter-spacing: .5px;
+  text-transform: uppercase; color: var(--brand-ink-soft); }
+.nv-page-next, .nv-page-submit { min-width: 12rem; }
+/* Deferred mode (*Feedback:* deferred): the per-section "Submit section" / "Submit exam" control.
+   Shares the pager button footprint; a subtle accent so it reads as the section's commit action. */
+.nv-page-submit { background: var(--brand-accent); color: var(--brand-accent-ink, #fff); border-color: var(--brand-accent); }
+/* Deferred single-select: the tentative (changeable) choice, mirroring the multi-select selected look. */
+.nv-kc-opt.is-selected { border-color: var(--brand-accent); }
+/* Title-under-wave: the moved slide-title band sits INSIDE the section (a direct child),
+   atop the band, so it inherits the section color directly instead of needing the fragile
+   sibling :has() recolor. Scoped to .nv-page so an ungraded inner heading in a non-paged
+   course is untouched. */
+
+/* ---- Course end / exit ---- */
+.nv-course-end { text-align: center; margin: 3rem 0 1rem; }
+.nv-course-end-msg { color: var(--brand-ink-soft); margin-bottom: 1rem; }
+.nv-exit { background: var(--brand-accent); color: var(--brand-light); }
+
+/* ---- Continue gate ---- */
+.nv-continue {
+  text-align: center; margin: 2.5rem -22px; padding: 1rem 22px;
+  background: var(--brand-surface); border-block: 1px solid var(--brand-line);
+}
+.nv-continue .nv-btn {
+  display: flex; align-items: center; justify-content: center; width: 100%;
+  min-height: 3.6rem; border-radius: 8px; box-shadow: 0 8px 22px rgba(11,44,55,.14);
+  text-transform: uppercase;
+}
+.nv-continue .nv-btn::after {
+  content: "→"; margin-left: .7rem; font-size: 1.25rem; line-height: 1;
+}
+.nv-continue-status {
+  min-height: 1.3rem; margin-top: .55rem; color: var(--brand-ink-soft);
+  font-size: .9rem; font-weight: 600;
+}
+.nv-continue.is-locked .nv-btn {
+  background: var(--brand-light); color: var(--brand-heading);
+  border: 2px solid var(--brand-line); box-shadow: none;
+}
+.nv-continue.is-ready .nv-continue-status { color: var(--brand-accent-ink); }
+.nv-btn {
+  font-family: var(--brand-font-head); font-weight: 700; letter-spacing: .5px;
+  background: var(--brand-accent); color: var(--brand-light); border: 0; cursor: pointer;
+  padding: .85rem 2.2rem; border-radius: 99px; font-size: 1.05rem;
+}
+.nv-btn:disabled { opacity: .62; cursor: not-allowed; }
+.nv-gated { display: none; scroll-margin-top: 5rem; }
+.nv-gated.revealed { display: block; animation: nv-fade .4s ease; }
+@keyframes nv-fade { from { opacity:0; transform: translateY(8px);} to {opacity:1; transform:none;} }
+
+/* Phase-1 dynamism — reveal visual blocks as they scroll into view. The hidden
+   initial state applies ONLY under .nv-anim (added by player.js when motion is
+   allowed and IntersectionObserver exists), so no-JS / reduced-motion / any failure
+   always renders fully visible. Multi-item blocks stagger their children in sequence. */
+.nv-anim .nv-reveal { opacity: 0; transform: translateY(12px); }
+.nv-anim .nv-reveal.nv-in { opacity: 1; transform: none;
+  transition: opacity .5s ease, transform .5s cubic-bezier(.23,1,.32,1); }
+.nv-anim .nv-reveal-seq > * { opacity: 0; transform: translateY(10px); }
+.nv-anim .nv-reveal-seq > *.nv-in { opacity: 1; transform: none;
+  transition: opacity .45s ease, transform .45s cubic-bezier(.23,1,.32,1); }
+@media (prefers-reduced-motion: reduce) {
+  .nv-anim .nv-reveal, .nv-anim .nv-reveal.nv-in,
+  .nv-anim .nv-reveal-seq > *, .nv-anim .nv-reveal-seq > *.nv-in {
+    opacity: 1 !important; transform: none !important; transition: none !important; }
+}
+
+/* ---- Knowledge check ---- */
+.nv-kc { background: var(--brand-band-bg); color: var(--brand-band-ink); border-radius: var(--brand-radius-lg); padding: 1.6rem; margin: var(--brand-gap) 0; }
+.nv-kc .nv-kc-prompt { font-family: var(--brand-font-head); font-weight: 700; font-size: 1.3rem; margin-bottom: 1rem; overflow-wrap: anywhere; }
+.nv-kc-opt {
+  display: block; width: 100%; min-width: 0; text-align: left; background: var(--brand-light); color: var(--brand-ink);
+  border: 2px solid transparent; border-radius: 12px; padding: .8rem 1rem; margin: .5rem 0; cursor: pointer; font-size: 1rem;
+  white-space: normal; overflow-wrap: anywhere; line-height: 1.35;
+}
+.nv-kc-opt:hover { border-color: var(--brand-accent); }
+.nv-kc-opt.correct { border-color: var(--brand-correct); background: #e9faf1; }
+.nv-kc-opt.incorrect { border-color: var(--brand-incorrect); background: #fbeceb; }
+.nv-kc-opt.is-disabled { pointer-events: none; opacity: .85; }
+/* multi-select ('choose all that apply'): options are toggles, committed with Submit. */
+.nv-kc-hint { font-size: .9rem; opacity: .85; margin: 0 0 .8rem; }
+.nv-kc--multi .nv-kc-opt { padding-left: 2.6rem; position: relative; }
+.nv-kc--multi .nv-kc-opt::before {
+  content: ""; position: absolute; left: 1rem; top: 50%; transform: translateY(-50%);
+  width: 1.05rem; height: 1.05rem; border: 2px solid var(--brand-accent); border-radius: 5px; background: #fff;
+}
+.nv-kc--multi .nv-kc-opt[aria-pressed="true"]::before {
+  background: var(--brand-accent); border-color: var(--brand-accent);
+  box-shadow: inset 0 0 0 .12rem #fff, inset 0 0 0 .28rem var(--brand-accent);
+}
+.nv-kc--multi .nv-kc-opt.is-selected { border-color: var(--brand-accent); }
+.nv-kc-submit { margin-top: 1rem; }
+.nv-kc-submit:disabled { opacity: .6; cursor: default; }
+.nv-kc-fb { margin-top: 1rem; padding: .9rem 1.1rem; border-radius: 10px; background: rgba(255,255,255,.12); display: none; }
+.nv-kc-fb.show { display: block; }
+.nv-kc-fb.ok { border-left: 5px solid var(--brand-correct); }
+.nv-kc-fb.no { border-left: 5px solid var(--brand-incorrect); }
+
+/* ---- Learning objectives block (Slide-1 outcomes) ---- */
+.nv-objectives {
+  background: var(--brand-light); border: 1px solid var(--brand-line);
+  border-top: 6px solid var(--brand-accent);
+  border-radius: var(--brand-radius-lg); padding: 1.35rem 1.5rem; margin: var(--brand-gap) 0;
+  box-shadow: 0 8px 24px rgba(11,44,55,.08);
+}
+.nv-obj-intro { font-family: var(--brand-font-head); font-weight: 700; color: var(--brand-ink); margin: 0 0 .7rem; }
+.nv-obj-list {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: .75rem; list-style: none; margin: 0; padding: 0;
+}
+.nv-obj-list li {
+  position: relative; margin: 0; padding: .85rem .9rem .85rem 2.45rem;
+  background: var(--brand-surface); border: 1px solid var(--brand-line);
+  border-radius: var(--brand-radius); min-height: 4.2rem;
+}
+.nv-obj-list li::before {
+  content: ""; position: absolute; left: .9rem; top: 1rem;
+  width: .85rem; height: .85rem; border-radius: 999px;
+  background: var(--brand-accent); box-shadow: 0 0 0 4px rgba(30,177,106,.16);
+}
+
+/* ---- Branded CTA buttons (re-skinned from Uiverse MIT snippets: gradient sweep + arrow) ---- */
+/* Shared base for library buttons AND the continue/exit controls, so everything matches. */
+.nv-cta, .nv-btn, .nv-exit {
+  position: relative; overflow: hidden; z-index: 1;
+  display: inline-flex; align-items: center; justify-content: center; gap: .55rem;
+  font-family: var(--brand-font-head); font-weight: 700; letter-spacing: .5px;
+  border: 2px solid transparent; border-radius: 99px; cursor: pointer;
+  text-decoration: none; padding: .85rem 2.2rem; font-size: 1.05rem; line-height: 1;
+  transition: color .25s ease, border-color .25s ease, transform .12s ease;
+}
+/* the left-to-right fill sweep (Button 1/2) */
+.nv-cta::before, .nv-btn::before, .nv-exit::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; width: 0;
+  background: linear-gradient(90deg, var(--brand-accent), var(--brand-accent2));
+  transition: width .45s ease;
+}
+.nv-cta:hover::before, .nv-btn:hover:not(:disabled)::before, .nv-exit:hover::before { width: 100%; }
+.nv-cta:active, .nv-btn:active, .nv-exit:active { transform: scale(.97); }
+.nv-cta:focus-visible, .nv-btn:focus-visible, .nv-exit:focus-visible,
+.nv-card--interactive:focus-visible, .nv-card--link:focus-visible, .nv-modal-close:focus-visible {
+  outline: 3px solid var(--brand-heading); outline-offset: 2px;
+}
+
+/* primary = solid accent, sweeps to the lighter accent on hover */
+.nv-cta--primary, .nv-btn, .nv-exit { background: var(--brand-accent); color: var(--brand-light); }
+/* secondary = outlined, fills with brand on hover (Button 2 behavior) */
+.nv-cta--secondary { background: var(--brand-light); color: var(--brand-accent-ink); border-color: var(--brand-accent); }
+.nv-cta--secondary:hover { color: var(--brand-light); }
+.nv-cta-wrap { text-align: center; }
+.nv-cta-arrow { display: inline-block; transition: transform .3s ease; font-weight: 700; }
+.nv-cta--arrow:hover .nv-cta-arrow { transform: translateX(4px); }
+
+/* ---- Content card grid (3-up, reflows to 1 on narrow screens) ---- */
+.nv-cardgrid {
+  display: grid; gap: 1.2rem;
+  grid-template-columns: repeat(var(--nv-cols, auto-fit), minmax(220px, 1fr));
+}
+@media (max-width: 680px){ .nv-cardgrid { grid-template-columns: 1fr; } }
+.nv-card {
+  position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: .6rem;
+  text-align: left; background: var(--brand-light); color: var(--brand-ink);
+  border: 1px solid var(--brand-line); border-radius: var(--brand-radius-lg);
+  padding: 1.4rem 1.4rem 1.5rem; box-shadow: 0 4px 14px rgba(11,44,55,.06);
+  font: inherit; width: 100%;
+  transition: transform .35s cubic-bezier(.23,1,.32,1), box-shadow .35s ease, border-color .25s ease;
+}
+.nv-card--interactive, .nv-card--link { cursor: pointer; }
+.nv-card--interactive:hover, .nv-card--link:hover {
+  transform: translateY(-6px); box-shadow: 0 14px 30px rgba(11,44,55,.16); border-color: var(--brand-accent);
+}
+.nv-card-icon { font-size: 1.8rem; line-height: 1; color: var(--brand-accent); }
+.nv-card-icon svg { width: 40px; height: 40px; }
+.nv-card-title { font-family: var(--brand-font-head); font-weight: 700; color: var(--brand-heading); margin: 0; font-size: 1.25rem; }
+.nv-card-teaser { margin: 0; color: var(--brand-ink-soft); font-size: .98rem; }
+.nv-card-cue {
+  position: absolute; top: 12px; right: 14px; width: 26px; height: 26px; border-radius: 99px;
+  display: flex; align-items: center; justify-content: center; font-weight: 700;
+  background: var(--brand-note-bg); color: var(--brand-accent-ink); transition: background .25s ease, color .25s ease;
+}
+.nv-card--interactive:hover .nv-card-cue { background: var(--brand-accent); color: var(--brand-light); }
+
+/* ---- Modal / expanded card ---- */
+body.nv-modal-open { overflow: hidden; }
+.nv-modal {
+  position: fixed; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center;
+  padding: 22px; background: rgba(11,44,55,.55); animation: nv-modal-fade .2s ease;
+}
+.nv-modal[hidden] { display: none; }
+@keyframes nv-modal-fade { from { opacity: 0; } to { opacity: 1; } }
+.nv-modal-card {
+  position: relative; background: var(--brand-light); color: var(--brand-ink);
+  border-radius: var(--brand-radius-lg); padding: 2rem 1.9rem 2.1rem;
+  max-width: 640px; width: 100%; max-height: 88vh; overflow: auto;
+  box-shadow: 0 24px 60px rgba(11,44,55,.4); animation: nv-modal-rise .28s cubic-bezier(.23,1,.32,1);
+}
+@keyframes nv-modal-rise { from { transform: translateY(16px); opacity: .6; } to { transform: none; opacity: 1; } }
+.nv-modal-close {
+  position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; border: 0; border-radius: 99px;
+  background: var(--brand-surface); color: var(--brand-heading); font-size: 1.3rem; line-height: 1; cursor: pointer;
+}
+.nv-modal-close:hover { background: var(--brand-line); }
+.nv-modal-title { font-family: var(--brand-font-head); color: var(--brand-heading); margin: 0 2.5rem .9rem 0; font-size: 1.7rem; }
+.nv-modal-media { width: 100%; border-radius: var(--brand-radius); margin: 0 0 1rem; }
+.nv-modal .nv-embed-frame { margin: 0 0 1rem; }
+.nv-modal-body { margin: 0 0 1.1rem; }
+
+/* Respect reduced-motion: kill sweeps, lifts, and modal animations */
+@media (prefers-reduced-motion: reduce) {
+  .nv-cta, .nv-btn, .nv-exit, .nv-cta::before, .nv-btn::before, .nv-exit::before,
+  .nv-cta-arrow, .nv-card, .nv-card-cue, .nv-modal, .nv-modal-card { transition: none; animation: none; }
+  .nv-card--interactive:hover, .nv-card--link:hover { transform: none; }
+}
+
+/* ---- Image text-overlay (inline hero) ---- */
+.nv-hero.nv-overlay { margin: var(--brand-gap) 0; border-radius: var(--brand-radius); overflow: hidden; }
+.nv-hero.nv-overlay img { max-height: 420px; border-radius: var(--brand-radius); }
+.nv-hero.nv-overlay .nv-hero-cap { padding: 1.6rem 1.5rem; }
+.nv-overlay-text { font-family: var(--brand-font-head); font-weight: 700; }
+.nv-overlay-text :where(p) { margin: .2rem 0; }
+
+/* ---- Quote ---- */
+.nv-quote { margin: var(--brand-gap) 0; padding: 1.8rem 2rem; border-radius: var(--brand-radius-lg);
+  background: var(--brand-surface); border-left: 6px solid var(--brand-accent); }
+.nv-quote-text { margin: 0; font-family: var(--brand-font-head); font-weight: 700; font-size: 1.5rem;
+  color: var(--brand-heading); line-height: 1.35; }
+.nv-quote-by { margin-top: .9rem; color: var(--brand-ink-soft); font-size: 1rem; }
+.nv-quote-by :where(p) { margin: 0; }
+.nv-quote--bg { position: relative; border-left: 0; color: var(--brand-light); overflow: hidden;
+  background: var(--brand-heading); }
+.nv-quote--bg::before { content: ""; position: absolute; inset: 0; z-index: 0;
+  background-image: var(--nv-quote-bg); background-size: cover; background-position: center; opacity: .35; }
+.nv-quote--bg .nv-quote-text, .nv-quote--bg .nv-quote-by { position: relative; z-index: 1; color: var(--brand-light); }
+
+/* ---- Accordion (native <details>) ---- */
+.nv-accordion { margin: var(--brand-gap) 0; }
+.nv-acc-item { border: 1px solid var(--brand-line); border-radius: var(--brand-radius); margin: .6rem 0;
+  background: var(--brand-light); overflow: hidden; }
+.nv-acc-item > summary { cursor: pointer; list-style: none; padding: 1rem 1.3rem; font-family: var(--brand-font-head);
+  font-weight: 700; color: var(--brand-heading); display: flex; align-items: center; justify-content: space-between; }
+.nv-acc-item > summary::-webkit-details-marker { display: none; }
+.nv-acc-item > summary::after { content: "+"; color: var(--brand-accent); font-size: 1.4rem; margin-left: 1rem; }
+.nv-acc-item[open] > summary::after { content: "–"; }
+.nv-acc-item > summary:focus-visible { outline: 3px solid var(--brand-heading); outline-offset: -3px; }
+.nv-acc-body { padding: 0 1.3rem 1.2rem; }
+.nv-acc-media { border-radius: var(--brand-radius); margin: .4rem 0 .8rem; }
+
+/* ---- Tabs ---- */
+.nv-tabs { margin: var(--brand-gap) 0; background: var(--brand-light);
+  border: 1px solid var(--brand-line); border-radius: var(--brand-radius-lg); overflow: hidden; }
+.nv-tablist { display: flex; flex-wrap: wrap; gap: .25rem; padding: .45rem;
+  background: var(--brand-surface); border-bottom: 1px solid var(--brand-line); }
+.nv-tab { appearance: none; border: 0; border-radius: var(--brand-radius); cursor: pointer;
+  padding: .8rem 1rem; background: transparent; color: var(--brand-heading);
+  font: inherit; font-family: var(--brand-font-head); font-weight: 700; }
+.nv-tab:hover { background: rgba(30,177,106,.10); }
+.nv-tab[aria-selected="true"] { background: var(--brand-light); color: var(--brand-heading);
+  box-shadow: inset 0 -3px 0 var(--brand-accent), 0 0 0 1px var(--brand-line); }
+.nv-tab:focus-visible { outline: 3px solid var(--brand-heading); outline-offset: 2px; }
+.nv-tab-panel { padding: 1.2rem 1.3rem; color: var(--brand-ink); }
+.nv-tab-panel[hidden] { display: none; }
+.nv-tab-media { border-radius: var(--brand-radius); margin: .2rem 0 1rem; }
+
+/* ---- Process (ordered steps) ---- */
+.nv-process { margin: var(--brand-gap) 0; padding: 0; list-style: none; counter-reset: nv-step; }
+.nv-step { position: relative; background: var(--brand-light); border: 1px solid var(--brand-line);
+  border-radius: var(--brand-radius); padding: 1.2rem 1.3rem 1.2rem 3.6rem; margin: .7rem 0; counter-increment: nv-step; }
+.nv-step::before { content: counter(nv-step); position: absolute; left: 1rem; top: 1.1rem; width: 1.9rem; height: 1.9rem;
+  border-radius: 99px; background: var(--brand-light); color: var(--brand-heading);
+  border: 3px solid var(--nv-accent, var(--brand-accent)); font-family: var(--brand-font-head);
+  font-weight: 700; display: flex; align-items: center; justify-content: center; }
+.nv-step-title { font-family: var(--brand-font-head); color: var(--brand-heading); margin: 0 0 .4rem; font-size: 1.2rem; }
+.nv-step-media { border-radius: var(--brand-radius); margin: .4rem 0; }
+.nv-process--vertical { position: relative; padding-left: .25rem; }
+.nv-process--vertical .nv-step { border-left: 5px solid var(--nv-accent, var(--brand-accent)); box-shadow: 0 4px 14px rgba(11,44,55,.06); }
+.nv-process--stepped { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
+.nv-process--stepped .nv-step { margin: 0; padding: 4rem 1.2rem 1.2rem; min-height: 100%; border-top: 6px solid var(--nv-accent, var(--brand-accent)); }
+.nv-process--stepped .nv-step::before { left: 1.2rem; top: 1rem; width: 2.25rem; height: 2.25rem; }
+.nv-step--summary { counter-increment: none; border-left-style: dashed; }
+.nv-step--summary::before { content: ""; background: var(--brand-light); }
+
+/* ---- Flashcards (CSS 3D flip; click/Enter/Space toggles aria-pressed) ---- */
+.nv-flashgrid { display: grid; gap: 1.2rem; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin: var(--brand-gap) 0; }
+@media (max-width: 680px){ .nv-flashgrid { grid-template-columns: 1fr; } }
+.nv-flip { font: inherit; border: 0; background: none; padding: 0; cursor: pointer; perspective: 1200px; min-height: 180px; }
+.nv-flip-inner { position: relative; display: block; width: 100%; height: 100%; min-height: 180px;
+  transition: transform .55s cubic-bezier(.23,1,.32,1); transform-style: preserve-3d; }
+.nv-flip[aria-pressed="true"] .nv-flip-inner { transform: rotateY(180deg); }
+.nv-flip-face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .6rem;
+  border-radius: var(--brand-radius-lg); padding: 1.4rem; text-align: center; box-shadow: 0 4px 14px rgba(11,44,55,.1); }
+.nv-flip-front { background: var(--brand-light); color: var(--brand-heading); border: 1px solid var(--brand-line); }
+.nv-flip-back { background: var(--brand-accent); color: var(--brand-light); transform: rotateY(180deg); }
+.nv-flip-back :where(p,strong,em) { color: var(--brand-light); }
+.nv-flip-text { font-family: var(--brand-font-head); font-weight: 700; }
+.nv-flip-media { max-height: 90px; border-radius: 8px; }
+.nv-flip:focus-visible { outline: 3px solid var(--brand-heading); outline-offset: 3px; border-radius: var(--brand-radius-lg); }
+
+/* ---- Categorize/sorting + matching + sequencing (M12) (accessible select-to-place base; drag is a later enhancement) ---- */
+.nv-sort, .nv-match, .nv-seq { background: var(--brand-band-bg); color: var(--brand-band-ink); border-radius: var(--brand-radius-lg);
+  padding: 1.5rem 1.6rem; margin: var(--brand-gap) 0; }
+.nv-sort-instr, .nv-match-instr, .nv-seq-instr { font-family: var(--brand-font-head); font-weight: 700; margin-bottom: 1rem; }
+.nv-sort-prompt, .nv-match-prompt, .nv-seq-prompt { margin-bottom: 1rem; }
+/* Interaction hint (the HOW): a subtle mechanic reminder that always accompanies an
+   interactive block's task prompt so learners know how to operate it. Muted + lighter
+   than the task line, so the two don't read as duplicate instructions. (James 2026-07-16) */
+.nv-int-hint { color: var(--brand-ink-soft, #556); font-size: .92rem; margin: -.35rem 0 1rem; }
+.nv-sort-items, .nv-match-items, .nv-seq-items { list-style: none; margin: 0 0 1.1rem; padding: 0; }
+.nv-sort-item, .nv-match-item, .nv-seq-item { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; background: var(--brand-light);
+  color: var(--brand-ink); border: 2px solid transparent; border-radius: 12px; padding: .7rem 1rem; margin: .55rem 0; }
+.nv-sort-label, .nv-match-label, .nv-seq-label { flex: 1; min-width: 50%; }
+.nv-sort-pick, .nv-match-pick, .nv-seq-pick { font: inherit; padding: .45rem .6rem; border-radius: 8px; border: 1px solid var(--brand-line);
+  background: var(--brand-light); color: var(--brand-ink); }
+.nv-sort-item.correct, .nv-match-item.correct, .nv-seq-item.correct { border-color: var(--brand-correct); background: #e9faf1; }
+.nv-sort-item.incorrect, .nv-match-item.incorrect, .nv-seq-item.incorrect { border-color: var(--brand-incorrect); background: #fbeceb; }
+.nv-sort-item.is-locked .nv-sort-pick, .nv-match-item.is-locked .nv-match-pick, .nv-seq-item.is-locked .nv-seq-pick { pointer-events: none; opacity: .9; }
+.nv-sort-fb, .nv-match-fb, .nv-seq-fb { margin-top: 1rem; padding: .9rem 1.1rem; border-radius: 10px; background: rgba(255,255,255,.12); display: none; }
+.nv-sort-fb.show, .nv-match-fb.show, .nv-seq-fb.show { display: block; }
+.nv-sort-fb.ok, .nv-match-fb.ok, .nv-seq-fb.ok { border-left: 5px solid var(--brand-correct); }
+.nv-sort-fb.no, .nv-match-fb.no, .nv-seq-fb.no { border-left: 5px solid var(--brand-incorrect); }
+/* Instant-mode terminal reveal (*Feedback:* instant): the correct answer appended to a missed row. */
+.nv-ans-reveal { display: inline-block; margin-left: .6rem; font-size: .85em; font-weight: 600;
+  color: var(--brand-correct); white-space: nowrap; }
+/* ---- Fill-in-the-blank (M12) — inline text inputs, so its own item/input rules ---- */
+.nv-fill { background: var(--brand-band-bg); color: var(--brand-band-ink); border-radius: var(--brand-radius-lg);
+  padding: 1.5rem 1.6rem; margin: var(--brand-gap) 0; }
+.nv-fill-instr { font-family: var(--brand-font-head); font-weight: 700; margin-bottom: 1rem; }
+.nv-fill-prompt { margin-bottom: 1rem; }
+.nv-fill-items { list-style: none; margin: 0 0 1.1rem; padding: 0; }
+.nv-fill-item { background: var(--brand-light); color: var(--brand-ink); border: 2px solid transparent;
+  border-radius: 12px; padding: .7rem 1rem; margin: .55rem 0; line-height: 2; }
+.nv-fill-input { font: inherit; padding: .3rem .55rem; border-radius: 8px; border: 1px solid var(--brand-line);
+  min-width: 8rem; background: #fff; color: var(--brand-ink); }
+.nv-fill-item.correct { border-color: var(--brand-correct); background: #e9faf1; }
+.nv-fill-item.incorrect { border-color: var(--brand-incorrect); background: #fbeceb; }
+.nv-fill-item.is-locked .nv-fill-input { pointer-events: none; opacity: .9; }
+.nv-fill-fb { margin-top: 1rem; padding: .9rem 1.1rem; border-radius: 10px; background: rgba(255,255,255,.12); display: none; }
+.nv-fill-fb.show { display: block; }
+.nv-fill-fb.ok { border-left: 5px solid var(--brand-correct); }
+.nv-fill-fb.no { border-left: 5px solid var(--brand-incorrect); }
+/* ---- dragDrop — draggable labels onto zones / a diagram; <select> is the a11y base ---- */
+.nv-drag { background: var(--brand-band-bg); color: var(--brand-band-ink); border-radius: var(--brand-radius-lg);
+  padding: 1.5rem 1.6rem; margin: var(--brand-gap) 0; }
+.nv-drag-instr { font-family: var(--brand-font-head); font-weight: 700; margin-bottom: 1rem; }
+.nv-drag-prompt { margin-bottom: 1rem; }
+/* zones as a labeled row (no diagram) */
+.nv-drag-zones { display: flex; flex-wrap: wrap; gap: .8rem; margin-bottom: 1.1rem; }
+.nv-drag-zones .nv-drag-zone { flex: 1 1 8rem; }
+.nv-drag-zone { background: var(--brand-light); color: var(--brand-ink); border: 2px dashed var(--brand-line);
+  border-radius: 12px; padding: .7rem 1rem; min-height: 3.2rem; }
+.nv-drag-zone-title { display: block; font-weight: 700; font-size: .9rem; margin-bottom: .35rem; }
+.nv-drag-slot { display: flex; flex-wrap: wrap; gap: .35rem; }
+.nv-drag-zone.nv-drag-over { border-color: var(--brand-accent, var(--brand-correct)); background: #eef7ff; }
+.nv-drag-zone.nv-drag-filled { border-style: solid; }
+.nv-drag-placed { display: inline-flex; align-items: center; gap: .35rem; background: var(--brand-band-bg);
+  color: var(--brand-band-ink); border: 0; border-radius: 8px; padding: .2rem .5rem; font: inherit;
+  font-size: .85rem; cursor: pointer; }
+.nv-drag-placed:hover, .nv-drag-placed:focus-visible { outline: 2px solid var(--brand-accent, var(--brand-correct)); outline-offset: 1px; }
+.nv-drag-placed-x { font-weight: 700; line-height: 1; opacity: .7; }
+.nv-drag-zone.nv-drag-filled .nv-drag-placed:hover .nv-drag-placed-x { opacity: 1; }
+/* placed labels dim in the pool so what's left to place is obvious (James 2026-07-24) */
+.nv-drag-item.is-placed { opacity: .45; }
+.nv-drag-item.is-placed.correct, .nv-drag-item.is-placed.incorrect { opacity: 1; }  /* grading overrides the dim */
+/* the per-label placement <select> is hidden by default; the toggle reveals it for keyboard/AT */
+.nv-drag--nomenus .nv-drag-pick { display: none; }
+.nv-drag-menus-toggle { font: inherit; font-size: .82rem; background: transparent; color: var(--brand-band-ink);
+  border: 1px solid var(--brand-line); border-radius: 8px; padding: .3rem .7rem; margin: 0 0 1rem; cursor: pointer; }
+.nv-drag-menus-toggle:hover, .nv-drag-menus-toggle:focus-visible { border-color: var(--brand-accent, var(--brand-correct)); }
+.nv-drag-menus-toggle[aria-pressed="true"] { background: var(--brand-light); color: var(--brand-ink); }
+/* diagram: zones positioned over a background image (x/y percent) */
+.nv-drag-diagram { position: relative; display: inline-block; max-width: 100%; margin-bottom: 1.1rem; }
+.nv-drag-img { display: block; max-width: 100%; height: auto; border-radius: 12px; }
+.nv-drag-diagram .nv-drag-zone { position: absolute; transform: translate(-50%, -50%); min-width: 6rem;
+  background: rgba(255,255,255,.92); }
+/* the pool of draggable labels */
+.nv-drag-pool { list-style: none; margin: 0 0 1.1rem; padding: 0; display: flex; flex-wrap: wrap; gap: .6rem; }
+.nv-drag-item { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; background: var(--brand-light);
+  color: var(--brand-ink); border: 2px solid transparent; border-radius: 12px; padding: .55rem .8rem; cursor: grab; }
+.nv-drag-item[draggable="false"] { cursor: default; }
+.nv-drag-label { font-weight: 600; }
+.nv-drag-pick { font: inherit; padding: .35rem .55rem; border-radius: 8px; border: 1px solid var(--brand-line);
+  background: var(--brand-light); color: var(--brand-ink); }
+.nv-drag-item.correct { border-color: var(--brand-correct); background: #e9faf1; }
+.nv-drag-item.incorrect { border-color: var(--brand-incorrect); background: #fbeceb; }
+.nv-drag-item.is-locked { cursor: default; }
+.nv-drag-item.is-locked .nv-drag-pick { pointer-events: none; opacity: .9; }
+.nv-drag-fb { margin-top: 1rem; padding: .9rem 1.1rem; border-radius: 10px; background: rgba(255,255,255,.12); display: none; }
+.nv-drag-fb.show { display: block; }
+.nv-drag-fb.ok { border-left: 5px solid var(--brand-correct); }
+.nv-drag-fb.no { border-left: 5px solid var(--brand-incorrect); }
+/* ---- hotspot — click the correct region(s) of an image; positioned <button> toggles ---- */
+.nv-hotspot { background: var(--brand-band-bg); color: var(--brand-band-ink); border-radius: var(--brand-radius-lg);
+  padding: 1.5rem 1.6rem; margin: var(--brand-gap) 0; }
+.nv-hotspot-instr { font-family: var(--brand-font-head); font-weight: 700; margin-bottom: 1rem; }
+.nv-hotspot-prompt { margin-bottom: 1rem; }
+.nv-hotspot-stage { position: relative; display: inline-block; max-width: 100%; margin-bottom: 1.1rem; }
+.nv-hotspot-img { display: block; max-width: 100%; height: auto; border-radius: 12px; }
+.nv-hotspot-stage.nv-hotspot--noimg { display: flex; flex-wrap: wrap; gap: .8rem; }
+.nv-hotspot-spot { font: inherit; color: inherit; cursor: pointer; background: transparent;
+  border: 2px solid transparent; border-radius: 10px; padding: .3rem; }
+/* points sit ON the image, anchored at x/y (center); regions add w/h */
+.nv-hotspot-stage:not(.nv-hotspot--noimg) .nv-hotspot-spot {
+  position: absolute; transform: translate(-50%, -50%); display: inline-flex; align-items: center;
+  gap: .4rem; background: rgba(255,255,255,.14); border-color: rgba(255,255,255,.6); }
+.nv-hotspot-stage:not(.nv-hotspot--noimg) .nv-hotspot-spot.nv-hotspot-region {
+  transform: translate(0,0); align-items: flex-start; }
+.nv-hotspot-dot { display: inline-block; width: .85rem; height: .85rem; border-radius: 50%;
+  border: 2px solid currentColor; background: rgba(255,255,255,.35); flex: none; }
+.nv-hotspot-region .nv-hotspot-dot { display: none; }
+.nv-hotspot-label { font-weight: 600; font-size: .9rem; }
+.nv-hotspot--noimg .nv-hotspot-spot { background: var(--brand-light); color: var(--brand-ink);
+  border: 2px solid var(--brand-line); padding: .55rem .9rem; }
+.nv-hotspot-spot:hover:not(:disabled) { border-color: var(--brand-accent, var(--brand-correct)); }
+.nv-hotspot-spot.is-selected { border-color: var(--brand-accent, var(--brand-correct));
+  box-shadow: 0 0 0 3px var(--brand-accent, var(--brand-correct)); }
+.nv-hotspot-spot.correct { border-color: var(--brand-correct); }
+.nv-hotspot-spot.incorrect { border-color: var(--brand-incorrect); }
+.nv-hotspot-spot.is-target { outline: 3px dashed var(--brand-correct); outline-offset: 2px; }
+.nv-hotspot-spot.is-locked { cursor: default; }
+.nv-hotspot-fb { margin-top: 1rem; padding: .9rem 1.1rem; border-radius: 10px; background: rgba(255,255,255,.12); display: none; }
+.nv-hotspot-fb.show { display: block; }
+.nv-hotspot-fb.ok { border-left: 5px solid var(--brand-correct); }
+.nv-hotspot-fb.no { border-left: 5px solid var(--brand-incorrect); }
+/* ---- wordSearch — letter grid; drag across cells or click first+last letter ---- */
+.nv-wordsearch { background: var(--brand-band-bg); color: var(--brand-band-ink); border-radius: var(--brand-radius-lg);
+  padding: 1.5rem 1.6rem; margin: var(--brand-gap) 0; }
+.nv-ws-instr { font-family: var(--brand-font-head); font-weight: 700; margin-bottom: 1rem; }
+.nv-ws-prompt { margin-bottom: 1rem; }
+.nv-ws-grid { display: grid; grid-template-columns: repeat(var(--ws-cols, 10), 1fr); gap: 2px;
+  max-width: 34rem; margin: 0 0 1.2rem; -webkit-user-select: none; user-select: none; touch-action: none; }
+.nv-ws-cell { aspect-ratio: 1 / 1; display: flex; align-items: center; justify-content: center;
+  font-family: var(--brand-font-head); font-weight: 700; font-size: clamp(.75rem, 2.6vw, 1.05rem);
+  text-transform: uppercase; background: var(--brand-light); color: var(--brand-ink); border: 1px solid var(--brand-line);
+  border-radius: 4px; cursor: pointer; padding: 0; line-height: 1; }
+.nv-ws-cell:focus-visible { outline: 3px solid var(--brand-accent, var(--brand-correct)); outline-offset: 1px; }
+.nv-ws-cell.nv-ws-sel { background: var(--brand-accent, var(--brand-correct)); color: #fff; }
+.nv-ws-cell.nv-ws-found { background: #e9faf1; color: var(--brand-ink); border-color: var(--brand-correct); }
+.nv-ws-words { list-style: none; margin: 0 0 1.1rem; padding: 0; display: flex; flex-wrap: wrap; gap: .5rem .9rem; }
+.nv-ws-word { background: var(--brand-light); color: var(--brand-ink); border-radius: 8px; padding: .3rem .7rem; }
+.nv-ws-term { font-weight: 700; letter-spacing: .03em; }
+.nv-ws-clue { opacity: .85; font-size: .9rem; }
+.nv-ws-word.found .nv-ws-term { text-decoration: line-through; }
+.nv-ws-word.found { border-left: 4px solid var(--brand-correct); }
+.nv-ws-fb { margin-top: 1rem; padding: .9rem 1.1rem; border-radius: 10px; background: rgba(255,255,255,.12); display: none; }
+.nv-ws-fb.show { display: block; }
+.nv-ws-fb.ok { border-left: 5px solid var(--brand-correct); }
+.nv-ws-fb.no { border-left: 5px solid var(--brand-incorrect); }
+
+/* ---- crossword — numbered interlocking grid; type answers using the clues ---- */
+.nv-crossword { background: var(--brand-band-bg); color: var(--brand-band-ink); border-radius: var(--brand-radius-lg);
+  padding: 1.5rem 1.6rem; margin: var(--brand-gap) 0; }
+.nv-cw-instr { font-family: var(--brand-font-head); font-weight: 700; margin-bottom: 1rem; }
+.nv-cw-prompt { margin-bottom: 1rem; }
+.nv-cw-layout { display: flex; flex-wrap: wrap; gap: 1.6rem 2rem; align-items: flex-start; }
+.nv-cw-grid { display: grid; grid-template-columns: repeat(var(--cw-cols, 10), 1fr); gap: 2px;
+  max-width: 30rem; flex: 0 0 auto; }
+.nv-cw-cell { position: relative; aspect-ratio: 1 / 1; }
+.nv-cw-cell.nv-cw-block { background: transparent; }
+.nv-cw-num { position: absolute; top: 1px; left: 2px; font-size: .55rem; line-height: 1; font-weight: 700;
+  color: var(--brand-ink-soft, var(--brand-ink)); pointer-events: none; z-index: 1; }
+.nv-cw-input { width: 100%; height: 100%; box-sizing: border-box; text-align: center; padding: 0;
+  font-family: var(--brand-font-head); font-weight: 700; text-transform: uppercase;
+  font-size: clamp(.75rem, 2.4vw, 1rem); background: var(--brand-light); color: var(--brand-ink);
+  border: 1px solid var(--brand-line); border-radius: 3px; }
+.nv-cw-input:focus-visible { outline: 3px solid var(--brand-accent, var(--brand-correct)); outline-offset: -1px; }
+.nv-cw-input.correct { background: #e9faf1; border-color: var(--brand-correct); }
+.nv-cw-input.incorrect { background: #fdecec; border-color: var(--brand-incorrect); }
+/* Slice D — active-word + active-cell highlight (classic crossword yellow; theme-agnostic,
+   drops once inputs are disabled after Check so it never fights correct/incorrect). */
+.nv-cw-cell.in-clue .nv-cw-input:not(:disabled) { background: #fff7d6; }
+.nv-cw-input.is-active:not(:disabled) { background: #ffe08a; }
+.nv-cw-clue.is-active { font-weight: 700; }
+.nv-cw-clues { flex: 1 1 14rem; display: flex; flex-wrap: wrap; gap: 1rem 1.8rem; }
+.nv-cw-cluelist { flex: 1 1 12rem; }
+.nv-cw-cluehead { font-family: var(--brand-font-head); font-weight: 700; margin: 0 0 .5rem; text-transform: uppercase; letter-spacing: .04em; font-size: .9rem; }
+.nv-cw-clues ol { list-style: none; margin: 0; padding: 0; }
+.nv-cw-clue { padding: .25rem 0; line-height: 1.35; }
+.nv-cw-cnum { font-weight: 700; }
+.nv-cw-len { opacity: .7; font-size: .85rem; }
+.nv-cw-clue.solved { text-decoration: line-through; opacity: .7; }
+.nv-cw-fb { margin-top: 1rem; padding: .9rem 1.1rem; border-radius: 10px; background: rgba(255,255,255,.12); display: none; }
+.nv-cw-fb.show { display: block; }
+.nv-cw-fb.ok { border-left: 5px solid var(--brand-correct); }
+.nv-cw-fb.no { border-left: 5px solid var(--brand-incorrect); }
+
+/* ---- gameShow — spin-the-wheel: one MCQ per slice, spin to draw the next ---- */
+.nv-gameshow { background: var(--brand-band-bg); color: var(--brand-band-ink); border-radius: var(--brand-radius-lg);
+  padding: 1.5rem 1.6rem; margin: var(--brand-gap) 0; }
+.nv-gs-instr { font-family: var(--brand-font-head); font-weight: 700; margin-bottom: 1rem; }
+.nv-gs-prompt { margin-bottom: 1rem; }
+.nv-gs-stage { display: flex; flex-direction: column; align-items: center; gap: 1.1rem; }
+.nv-gs-wheelwrap { position: relative; width: 16rem; max-width: 70%; flex: 0 0 auto; }
+.nv-gs-wheel { width: 100%; height: auto; display: block; }
+.nv-gs-rotor { transform-box: fill-box; transform-origin: center; transition: transform 3.2s cubic-bezier(.16,.84,.28,1); }
+.nv-gs-seg { fill: var(--brand-accent); stroke: var(--brand-light); stroke-width: 1.5; }
+.nv-gs-seg:nth-of-type(3n+2) { opacity: .72; }
+.nv-gs-seg:nth-of-type(3n) { opacity: .85; }
+.nv-gs-seg.nv-gs-done { fill: var(--brand-ink-soft, var(--brand-line)); opacity: .38; }
+.nv-gs-seg.nv-gs-done.nv-gs-ok { stroke: var(--brand-correct); }
+.nv-gs-seg.nv-gs-done.nv-gs-no { stroke: var(--brand-incorrect); }
+.nv-gs-segnum { fill: var(--brand-light); font-family: var(--brand-font-head); font-weight: 700; font-size: 13px; }
+.nv-gs-hub { fill: var(--brand-heading); stroke: var(--brand-light); stroke-width: 2; }
+.nv-gs-pointer { position: absolute; top: -3px; left: 50%; transform: translateX(-50%); width: 0; height: 0;
+  border-left: 11px solid transparent; border-right: 11px solid transparent; border-top: 19px solid var(--brand-heading);
+  z-index: 2; filter: drop-shadow(0 1px 1px rgba(0,0,0,.3)); }
+.nv-gs-spin { min-width: 8rem; }
+.nv-gs-panels { margin-top: 1.2rem; }
+.nv-gs-panel { border: 1px solid var(--brand-line); border-radius: 12px; padding: 1.1rem 1.3rem;
+  background: var(--brand-light); color: var(--brand-ink); margin: 0; }
+.nv-gs-panel[hidden] { display: none; }
+.nv-gs-q { font-family: var(--brand-font-head); font-weight: 700; padding: 0; line-height: 1.35; }
+.nv-gs-qnum { color: var(--brand-accent-ink); }
+.nv-gs-opts { display: grid; gap: .5rem; margin: .9rem 0; }
+.nv-gs-opt { display: flex; align-items: center; gap: .6rem; padding: .6rem .8rem; border: 1px solid var(--brand-line);
+  border-radius: 10px; cursor: pointer; }
+.nv-gs-opt:focus-within { outline: 2px solid var(--brand-accent, var(--brand-correct)); outline-offset: 1px; }
+.nv-gs-opt.nv-gs-correct { border-color: var(--brand-correct); background: #e9faf1; }
+.nv-gs-opt.nv-gs-wrong { border-color: var(--brand-incorrect); background: #fdecec; }
+.nv-gs-nudge .nv-gs-panel:not([hidden]) { animation: nv-gs-shake .3s ease; }
+@keyframes nv-gs-shake { 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+.nv-gs-fb { margin-top: 1rem; padding: .9rem 1.1rem; border-radius: 10px; background: rgba(255,255,255,.12); display: none; }
+.nv-gs-fb.show { display: block; }
+.nv-gs-fb.ok { border-left: 5px solid var(--brand-correct); }
+.nv-gs-fb.no { border-left: 5px solid var(--brand-incorrect); }
+@media (prefers-reduced-motion: reduce) {
+  .nv-gs-rotor { transition: none; }
+  .nv-gs-nudge .nv-gs-panel:not([hidden]) { animation: none; }
+}
+
+/* ---- quizBoard (Jeopardy-style category board) ---- */
+.nv-quizboard { background: var(--brand-band-bg); color: var(--brand-band-ink); border-radius: var(--brand-radius-lg);
+  padding: 1.5rem 1.6rem; margin: var(--brand-gap) 0; }
+.nv-qb-instr { font-family: var(--brand-font-head); font-weight: 700; margin-bottom: 1rem; }
+.nv-qb-prompt { margin-bottom: 1rem; }
+.nv-qb-board { display: grid; grid-template-columns: repeat(var(--qb-cols, 1), 1fr); gap: .5rem; }
+.nv-qb-board.nv-qb-picking { opacity: .5; pointer-events: none; }
+.nv-qb-head { font-family: var(--brand-font-head); font-weight: 700; text-align: center; padding: .55rem .4rem;
+  color: var(--brand-light); border-bottom: 2px solid var(--brand-accent); text-transform: uppercase; font-size: .82rem; letter-spacing: .03em; }
+.nv-qb-tile { font-family: var(--brand-font-head); font-weight: 700; font-size: 1.35rem; color: var(--brand-light);
+  background: var(--brand-accent); border: 1px solid var(--brand-light); border-radius: 10px; padding: 1rem .5rem;
+  cursor: pointer; min-height: 3rem; transition: transform .12s ease, filter .12s ease; }
+.nv-qb-tile:hover:not(:disabled) { filter: brightness(1.12); transform: translateY(-2px); }
+.nv-qb-tile:focus-visible { outline: 3px solid var(--brand-light); outline-offset: 2px; }
+.nv-qb-tile.nv-qb-done { cursor: default; color: var(--brand-band-ink); background: var(--brand-ink-soft, var(--brand-line)); opacity: .5; }
+.nv-qb-tile.nv-qb-done.nv-qb-ok { border-color: var(--brand-correct); box-shadow: inset 0 0 0 2px var(--brand-correct); }
+.nv-qb-tile.nv-qb-done.nv-qb-no { border-color: var(--brand-incorrect); box-shadow: inset 0 0 0 2px var(--brand-incorrect); }
+.nv-qb-blank { visibility: hidden; }
+.nv-qb-panels { margin-top: 1.2rem; }
+.nv-qb-panel { border: 1px solid var(--brand-line); border-radius: 12px; padding: 1.1rem 1.3rem;
+  background: var(--brand-light); color: var(--brand-ink); margin: 0; }
+.nv-qb-panel[hidden] { display: none; }
+.nv-qb-q { font-family: var(--brand-font-head); font-weight: 700; padding: 0; line-height: 1.35; }
+.nv-qb-qcat { color: var(--brand-accent-ink); text-transform: uppercase; font-size: .8rem; letter-spacing: .03em; margin-right: .5rem; }
+.nv-qb-qval { color: var(--brand-accent-ink); font-size: .9rem; margin-right: .4rem; }
+.nv-qb-opts { display: grid; gap: .5rem; margin: .9rem 0; }
+.nv-qb-opt { display: flex; align-items: center; gap: .6rem; padding: .6rem .8rem; border: 1px solid var(--brand-line);
+  border-radius: 10px; cursor: pointer; }
+.nv-qb-opt:focus-within { outline: 2px solid var(--brand-accent, var(--brand-correct)); outline-offset: 1px; }
+.nv-qb-opt.nv-qb-correct { border-color: var(--brand-correct); background: #e9faf1; }
+.nv-qb-opt.nv-qb-wrong { border-color: var(--brand-incorrect); background: #fdecec; }
+.nv-qb-nudge .nv-qb-panel:not([hidden]) { animation: nv-gs-shake .3s ease; }
+.nv-qb-fb { margin-top: 1rem; padding: .9rem 1.1rem; border-radius: 10px; background: rgba(255,255,255,.12); display: none; }
+.nv-qb-fb.show { display: block; }
+.nv-qb-fb.ok { border-left: 5px solid var(--brand-correct); }
+.nv-qb-fb.no { border-left: 5px solid var(--brand-incorrect); }
+@media (prefers-reduced-motion: reduce) {
+  .nv-qb-tile { transition: none; }
+  .nv-qb-nudge .nv-qb-panel:not([hidden]) { animation: none; }
+}
+
+/* ---- speedStreak (fast one-at-a-time MCQ run; streak + optional cosmetic timer) ---- */
+.nv-speedstreak { background: var(--brand-band-bg); color: var(--brand-band-ink); border-radius: var(--brand-radius-lg);
+  padding: 1.5rem 1.6rem; margin: var(--brand-gap) 0; }
+.nv-ss-instr { font-family: var(--brand-font-head); font-weight: 700; margin-bottom: 1rem; }
+.nv-ss-prompt { margin-bottom: 1rem; }
+.nv-ss-scoreboard { display: flex; flex-wrap: wrap; gap: 1.1rem; align-items: center; font-family: var(--brand-font-head);
+  font-weight: 700; margin-bottom: .8rem; }
+.nv-ss-scoreboard b { color: var(--brand-accent-ink, var(--brand-light)); }
+.nv-ss-streak b { color: var(--brand-light); }
+.nv-ss-timerbar { height: .5rem; border-radius: 999px; background: rgba(255,255,255,.18); overflow: hidden; margin-bottom: 1rem; }
+.nv-ss-timerbar > span { display: block; height: 100%; width: 100%; background: var(--brand-accent); transition: width 1s linear; }
+.nv-ss-panels { margin-top: .4rem; }
+.nv-ss-panel { border: 1px solid var(--brand-line); border-radius: 12px; padding: 1.1rem 1.3rem;
+  background: var(--brand-light); color: var(--brand-ink); margin: 0; }
+.nv-ss-panel[hidden] { display: none; }
+.nv-ss-q { font-family: var(--brand-font-head); font-weight: 700; padding: 0; line-height: 1.35; }
+.nv-ss-qnum { color: var(--brand-accent-ink); }
+.nv-ss-opts { display: grid; gap: .5rem; margin: .9rem 0; }
+.nv-ss-opt { display: flex; align-items: center; gap: .6rem; padding: .6rem .8rem; border: 1px solid var(--brand-line);
+  border-radius: 10px; cursor: pointer; }
+.nv-ss-opt:focus-within { outline: 2px solid var(--brand-accent, var(--brand-correct)); outline-offset: 1px; }
+.nv-ss-opt.nv-ss-correct { border-color: var(--brand-correct); background: #e9faf1; }
+.nv-ss-opt.nv-ss-wrong { border-color: var(--brand-incorrect); background: #fdecec; }
+.nv-ss-nudge .nv-ss-panel:not([hidden]) { animation: nv-gs-shake .3s ease; }
+.nv-ss-start, .nv-ss-next { min-width: 8rem; margin-top: 1rem; }
+.nv-ss-fb { margin-top: 1rem; padding: .9rem 1.1rem; border-radius: 10px; background: rgba(255,255,255,.12); display: none; }
+.nv-ss-fb.show { display: block; }
+.nv-ss-fb.ok { border-left: 5px solid var(--brand-correct); }
+.nv-ss-fb.no { border-left: 5px solid var(--brand-incorrect); }
+@media (prefers-reduced-motion: reduce) {
+  .nv-ss-timerbar > span { transition: none; }
+  .nv-ss-nudge .nv-ss-panel:not([hidden]) { animation: none; }
+}
+
+/* ---- Interaction engine (E1: element states + variables + when/do/if rules) ---- */
+.nv-ix { background: var(--brand-surface); border-radius: var(--brand-radius-lg); padding: 1.4rem 1.6rem; margin: var(--brand-gap) 0; }
+.nv-ix-prompt { font-family: var(--brand-font-head); font-weight: 700; margin-bottom: 1rem; }
+.nv-ix-stage { display: flex; flex-wrap: wrap; gap: .9rem; align-items: flex-start; }
+.nv-ix-el[hidden], .nv-ix-face[hidden] { display: none; }
+.nv-ix-text { padding: .6rem .8rem; border: 1px solid var(--brand-line); border-radius: 10px; background: #fff; }
+.nv-ix-btn { min-width: 8rem; }
+.nv-ix-img { margin: 0; }
+.nv-ix-img img { max-width: 100%; border-radius: 10px; display: block; }
+.nv-ix-el[data-state]:not([data-state="normal"]) { transition: background-color .25s ease, border-color .25s ease; }
+.nv-ix-done .nv-ix-btn { opacity: .65; pointer-events: none; }
+.nv-ix-fb { margin-top: 1rem; padding: .9rem 1.1rem; border-radius: 10px; background: rgba(255,255,255,.12); display: none; }
+.nv-ix-fb.show { display: block; }
+.nv-ix-fb.ok { border-left: 5px solid var(--brand-correct); }
+.nv-ix-fb.no { border-left: 5px solid var(--brand-incorrect); }
+@media (prefers-reduced-motion: reduce) {
+  .nv-ix-el[data-state]:not([data-state="normal"]) { transition: none; }
+}
+
+
+/* ---- Scenario (linear fallback: scenes + response options with feedback) ---- */
+.nv-scenario { margin: var(--brand-gap) 0; }
+.nv-scn-scene { background: var(--brand-surface); border-radius: var(--brand-radius-lg); padding: 1.4rem 1.6rem; margin: .8rem 0; }
+.nv-scn-responses { list-style: none; margin: 1rem 0 0; padding: 0; }
+.nv-scn-resp { border: 1px solid var(--brand-line); border-radius: 12px; padding: .9rem 1.1rem; margin: .55rem 0; background: var(--brand-light); }
+.nv-scn-resp.is-preferred { border-color: var(--brand-correct); }
+.nv-scn-choice { font-weight: 700; color: var(--brand-heading); }
+.nv-scn-fb { margin-top: .45rem; color: var(--brand-ink-soft); font-size: .96rem; }
+
+/* Branching scenarios (M14): choices are buttons; the picked one is highlighted and
+   siblings lock; a Continue routes onward, a Start-over resets. */
+.nv-scenario[data-branching] .nv-scn-scene:focus { outline: 2px solid var(--brand-accent); outline-offset: 3px; }
+.nv-scenario[data-branching] .nv-scn-choice { display: block; width: 100%; text-align: left; cursor: pointer;
+  font: inherit; font-weight: 700; background: transparent; border: 0; padding: 0; color: var(--brand-heading); }
+.nv-scenario[data-branching] .nv-scn-resp { transition: border-color .15s ease, background .15s ease; }
+.nv-scenario[data-branching] .nv-scn-resp.is-picked { border-color: var(--brand-accent); background: var(--brand-surface); }
+.nv-scenario[data-branching] .nv-scn-choice:disabled { cursor: default; }
+.nv-scn-nav, .nv-scn-foot { margin-top: 1rem; }
+
+@media (prefers-reduced-motion: reduce) {
+  .nv-flip-inner { transition: none; }
+}
+
+/* ---- Timeline / roadmap (vertical brand axis with milestone cards) ---- */
+/* HTML player parity with the 'timeline' slide layout. Per-item accent rides on --nv-accent. */
+.nv-timeline { position: relative; list-style: none; margin: var(--brand-gap) 0; padding: 0 0 0 2.2rem; }
+.nv-timeline::before { content: ""; position: absolute; left: .52rem; top: .5rem; bottom: .5rem; width: 3px;
+  background: var(--brand-line); border-radius: 99px; }
+.nv-tl-item { position: relative; margin: 0 0 1.1rem; }
+.nv-tl-item:last-child { margin-bottom: 0; }
+.nv-tl-node { position: absolute; left: -1.97rem; top: .45rem; width: 1.05rem; height: 1.05rem; border-radius: 99px;
+  background: var(--nv-accent, var(--brand-accent)); box-shadow: 0 0 0 4px var(--brand-page-bg), 0 0 0 5px var(--brand-line); }
+.nv-tl-card { background: var(--brand-light); border: 1px solid var(--brand-line);
+  border-left: 4px solid var(--nv-accent, var(--brand-accent)); border-radius: var(--brand-radius);
+  padding: 1rem 1.2rem 1.1rem; box-shadow: 0 4px 14px rgba(11,44,55,.06); }
+.nv-tl-phase { display: inline-block; font-family: var(--brand-font-head); font-weight: 700; font-size: .78rem;
+  letter-spacing: .6px; text-transform: uppercase; color: var(--nv-accent, var(--brand-accent-ink)); margin-bottom: .25rem; }
+.nv-tl-title { font-family: var(--brand-font-head); color: var(--brand-heading); margin: 0 0 .3rem; font-size: 1.2rem; }
+.nv-tl-card .nv-p { margin: .2rem 0 0; }
+
+/* ---- Comparison (2-3 side-by-side panels: old-vs-new / option A/B/C) ---- */
+.nv-comparison { display: grid; gap: 1.2rem; grid-template-columns: repeat(var(--nv-cmp-cols, 2), 1fr); margin: var(--brand-gap) 0; }
+@media (max-width: 680px){ .nv-comparison { grid-template-columns: 1fr; } }
+.nv-cmp-panel { display: flex; flex-direction: column; background: var(--brand-light); border: 1px solid var(--brand-line);
+  border-radius: var(--brand-radius-lg); overflow: hidden; box-shadow: 0 4px 14px rgba(11,44,55,.06); }
+.nv-cmp-head { background: var(--brand-light); color: var(--brand-heading);
+  border-top: 6px solid var(--nv-accent, var(--brand-accent));
+  font-family: var(--brand-font-head); font-weight: 700; font-size: 1.2rem; padding: .9rem 1.2rem; text-align: center; }
+.nv-cmp-head :where(strong,em,a) { color: var(--brand-heading); }
+.nv-cmp-sub { color: var(--brand-ink-soft); font-size: .9rem; padding: .7rem 1.3rem 0; text-align: center; }
+.nv-cmp-list { list-style: none; margin: .6rem 0; padding: .2rem 1.3rem; flex: 1; }
+.nv-cmp-list li { position: relative; padding-left: 1.2rem; margin: .55rem 0; }
+.nv-cmp-list li::before { content: ""; position: absolute; left: 0; top: .55em; width: .5rem; height: .5rem;
+  border-radius: 99px; background: var(--nv-accent, var(--brand-accent)); }
+.nv-cmp-callout { margin: auto 1.1rem 1.1rem; padding: .8rem 1rem; border-radius: 10px; background: var(--brand-surface);
+  border-left: 4px solid var(--nv-accent, var(--brand-accent)); font-weight: 600; color: var(--brand-heading); }
+.nv-comparison--before-after .nv-cmp-panel,
+.nv-comparison--pros-cons .nv-cmp-panel,
+.nv-comparison--myth-fact .nv-cmp-panel,
+.nv-comparison--dos-donts .nv-cmp-panel {
+  border-top: 6px solid var(--nv-accent, var(--brand-accent));
+}
+.nv-comparison--before-after .nv-cmp-head,
+.nv-comparison--pros-cons .nv-cmp-head,
+.nv-comparison--myth-fact .nv-cmp-head,
+.nv-comparison--dos-donts .nv-cmp-head {
+  background: var(--brand-light); color: var(--brand-heading); text-align: left;
+  border-top: 0;
+  padding: 1rem 1.25rem .4rem;
+}
+.nv-comparison--before-after .nv-cmp-head::before,
+.nv-comparison--pros-cons .nv-cmp-head::before,
+.nv-comparison--myth-fact .nv-cmp-head::before,
+.nv-comparison--dos-donts .nv-cmp-head::before {
+  content: ""; display: inline-block; width: .72rem; height: .72rem; border-radius: 999px;
+  background: var(--nv-accent, var(--brand-accent)); margin-right: .55rem;
+}
+
+/* infographic — poster-style overview block (HTML parity with the 'infographic' slide layout) */
+.nv-infographic { margin: var(--brand-gap) 0; }
+.nv-ig-header { text-align: center; margin-bottom: 1.4rem; }
+.nv-ig-title { font-family: var(--brand-font-head); color: var(--brand-heading); font-size: 1.7rem; margin: 0 0 .35rem;
+  display: inline-block; padding-bottom: .4rem; border-bottom: 3px solid var(--brand-accent); }
+.nv-ig-subtitle { color: var(--brand-ink-soft); font-size: 1rem; margin: .2rem 0 0; }
+.nv-ig-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 1.4rem; align-items: start; }
+@media (max-width: 680px){ .nv-ig-cols { grid-template-columns: 1fr; } }
+.nv-ig-heading { font-family: var(--brand-font-head); color: var(--brand-heading); font-size: 1.05rem;
+  letter-spacing: .04em; text-transform: uppercase; margin: 0 0 .5rem; }
+.nv-ig-left { background: var(--brand-light); border: 1px solid var(--brand-line); border-radius: var(--brand-radius-lg);
+  padding: 1.2rem 1.3rem; box-shadow: 0 4px 14px rgba(11,44,55,.06); }
+.nv-ig-intro { color: var(--brand-ink-soft); margin: 0 0 .6rem; }
+.nv-ig-items { list-style: none; margin: 0; padding: 0; }
+.nv-ig-items li { position: relative; padding-left: 1.2rem; margin: .5rem 0; }
+.nv-ig-items li::before { content: ""; position: absolute; left: 0; top: .55em; width: .5rem; height: .5rem;
+  border-radius: 99px; background: var(--brand-accent); }
+.nv-ig-items strong { color: var(--brand-heading); }
+.nv-ig-callout { margin: .9rem 0 0; padding: .8rem 1rem; border-radius: 10px; background: var(--brand-surface);
+  border-left: 4px solid var(--brand-accent); font-weight: 600; color: var(--brand-heading); }
+.nv-ig-sublabel { color: var(--brand-ink-soft); font-size: .85rem; letter-spacing: .05em; text-transform: uppercase;
+  margin: -.2rem 0 .7rem; }
+.nv-ig-cards { list-style: none; margin: 0; padding: 0; display: grid; gap: .7rem; }
+.nv-ig-card { display: flex; gap: .8rem; align-items: flex-start; background: var(--brand-light);
+  border: 1px solid var(--brand-line); border-left: 4px solid var(--nv-accent, var(--brand-accent));
+  border-radius: 12px; padding: .8rem 1rem; box-shadow: 0 3px 10px rgba(11,44,55,.05); }
+.nv-ig-num { flex: 0 0 auto; width: 2rem; height: 2rem; border-radius: 99px; background: var(--brand-light);
+  color: var(--brand-heading); border: 3px solid var(--nv-accent, var(--brand-accent));
+  font-family: var(--brand-font-head); font-weight: 700; font-size: 1.05rem;
+  display: flex; align-items: center; justify-content: center; }
+.nv-ig-card-title { font-family: var(--brand-font-head); font-weight: 700; color: var(--brand-heading); }
+.nv-ig-card-body { color: var(--brand-ink-soft); font-size: .92rem; margin-top: .12rem; }
+.nv-ig-goals { margin-top: 1.4rem; }
+.nv-ig-goals-label { font-family: var(--brand-font-head); font-weight: 700; color: var(--brand-heading);
+  text-transform: uppercase; letter-spacing: .05em; font-size: .95rem; margin-bottom: .6rem; }
+.nv-ig-goal-list { list-style: none; margin: 0; padding: 0; display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: .8rem; }
+.nv-ig-goal { background: var(--brand-light); border: 1px solid var(--brand-line);
+  border-top: 4px solid var(--nv-accent, var(--brand-accent)); border-radius: 12px; padding: .9rem 1rem;
+  box-shadow: 0 3px 10px rgba(11,44,55,.05); }
+.nv-ig-goal-title { font-family: var(--brand-font-head); font-weight: 700; color: var(--brand-heading); margin-bottom: .2rem; }
+.nv-ig-goal-body { color: var(--brand-ink-soft); font-size: .92rem; }
+.nv-ig-footer { margin: 1.3rem 0 0; text-align: center; font-weight: 600; color: var(--brand-heading);
+  padding-top: .9rem; border-top: 1px solid var(--brand-line); }
+
+/* ---- Chart (engine-generated inline SVG; data carried by an sr-only table) ---- */
+.nv-chart { margin: var(--brand-gap) 0; }
+.nv-chart-title { font-family: var(--brand-font-head); color: var(--brand-heading); font-weight: 700;
+  font-size: 1.2rem; text-align: center; margin: 0 0 .4rem; }
+.nv-chart-frame { background: var(--brand-light); border: 1px solid var(--brand-line);
+  border-radius: var(--brand-radius-lg); padding: .6rem .4rem; box-shadow: 0 4px 14px rgba(11,44,55,.06); }
+.nv-chart-svg { display: block; width: 100%; height: auto; }
+.nv-chart-svg text { font-family: var(--brand-font-body, inherit); }
+.nv-chart-legend { list-style: none; display: flex; flex-wrap: wrap; justify-content: center; gap: .4rem 1.1rem;
+  margin: .1rem 0 .6rem; padding: 0; }
+.nv-chart-key { display: inline-flex; align-items: center; gap: .45rem; font-size: .92rem; color: var(--brand-ink); }
+.nv-chart-swatch { width: .85rem; height: .85rem; border-radius: 3px; display: inline-block; }
+.nv-chart-takeaway { color: var(--brand-ink); font-weight: 600; font-size: .98rem; line-height: 1.4;
+  margin: .6rem auto 0; max-width: 46rem; text-align: center; }
+.nv-chart-source { color: var(--brand-ink-soft); font-size: .85rem; margin: .55rem 0 0; text-align: center; }
+.nv-chart-src-label { font-weight: 600; }
+.nv-sr-only { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; border: 0; }
+
+/* ---- Entrance animations (named effects as elements enter the viewport) ---- */
+/* The player adds .nv-anim + a direction class to blocks (and staggers grouped
+   children) ONLY when animations are on (body[data-anim] != "0"), Intersection-
+   Observer is available, and motion is allowed — then toggles .nv-in on intersect.
+   So a no-JS, no-observer, reduced-motion, or animations-off visitor always sees
+   fully-visible content. --nv-anim-delay staggers cascaded items.
+   NOTE: the scroll-reveal system also puts .nv-anim on <html> as a flag (see the
+   ".nv-anim .nv-reveal" rules above), so this entrance-hide is scoped with
+   :not(:root) — otherwise it would zero the whole page's opacity and never
+   receive .nv-in, blanking the course. */
+.nv-anim:not(:root) { opacity: 0;
+  transition: opacity .9s ease, transform .9s cubic-bezier(.23,1,.32,1);
+  transition-delay: var(--nv-anim-delay, 0s); }
+.nv-anim-up    { transform: translateY(24px); }   /* Float In */
+.nv-anim-left  { transform: translateX(-34px); }  /* Slide In From Left */
+.nv-anim-right { transform: translateX(34px); }   /* Slide In From Right */
+.nv-anim-zoom  { transform: scale(.94); }          /* Pop In */
+.nv-anim-fade  { transform: none; }                /* Fade (grouped shells) */
+.nv-anim.nv-in { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  .nv-anim { opacity: 1; transform: none; transition: none; }
+}
+
+/* utility: strip leftover Rise inline white text that would vanish on white bg is handled at import,
+   but as a guard, force readable ink inside light blocks */
+.nv-block :where(span,strong,em,p)[style*="color: rgb(255, 255, 255)"] { color: inherit !important; }
+
+/* ---- C8: completion certificate ---- */
+.nv-cert-overlay {
+  position: fixed; inset: 0; z-index: 1200; background: rgba(11,20,24,.62);
+  display: flex; align-items: center; justify-content: center; padding: 24px;
+}
+.nv-cert-card {
+  position: relative; background: var(--brand-light, #fff); color: var(--brand-ink);
+  width: min(680px, 100%); padding: 3rem 2.5rem; text-align: center;
+  border: 3px solid var(--brand-accent); border-radius: var(--brand-radius, 10px);
+  box-shadow: 0 20px 60px rgba(0,0,0,.35);
+}
+.nv-cert-close {
+  position: absolute; top: 10px; right: 14px; background: none; border: 0; cursor: pointer;
+  font-size: 1.6rem; line-height: 1; color: var(--brand-ink-soft, #667); padding: 4px 8px;
+}
+.nv-cert-logo { max-height: 48px; margin-bottom: 1.2rem; }
+.nv-cert-kicker {
+  font-family: var(--brand-font-head); text-transform: uppercase; letter-spacing: 2px;
+  font-size: .85rem; color: var(--brand-accent-ink, var(--brand-accent)); margin-bottom: 1.4rem;
+}
+.nv-cert-name {
+  font-family: var(--brand-font-head); font-size: 2.1rem; font-weight: 700;
+  color: var(--brand-heading); margin-bottom: 1rem;
+}
+.nv-cert-name--editable {
+  border-bottom: 2px dashed var(--brand-accent); cursor: text; display: inline-block; padding: 0 .3rem;
+}
+.nv-cert-body { color: var(--brand-ink-soft, inherit); margin-bottom: .3rem; }
+.nv-cert-course { font-family: var(--brand-font-head); font-size: 1.3rem; font-weight: 700; margin-bottom: 1rem; }
+.nv-cert-date { color: var(--brand-ink-soft, inherit); font-size: .95rem; }
+.nv-cert-actions { margin-top: 2rem; }
+.nv-cert-print { padding: .75rem 1.8rem; font-size: .95rem; }
+
+@media print {
+  body * { visibility: hidden; }
+  .nv-cert-overlay, .nv-cert-overlay * { visibility: visible; }
+  .nv-cert-overlay {
+    position: absolute; inset: 0; background: none; padding: 0; display: block;
+  }
+  .nv-cert-card { box-shadow: none; width: 100%; margin: 10% auto 0; }
+  .nv-cert-close, .nv-cert-actions { display: none; }
+}
+
+/* ---- Review what you missed (formative recap) ---- */
+.nv-review-btn {
+  background: var(--brand-surface, #eef2f4); color: var(--brand-ink);
+  border: 1px solid var(--brand-accent); margin-top: .6rem;
+}
+.nv-review-btn[aria-expanded="true"] { background: var(--brand-accent); color: var(--brand-light, #fff); }
+.nv-review-panel {
+  max-width: 640px; margin: 1rem auto 0; text-align: left;
+  border: 1px solid var(--brand-line, rgba(0,0,0,.12)); border-radius: var(--brand-radius, 10px);
+  padding: 1.2rem 1.4rem; background: var(--brand-light, #fff);
+}
+.nv-review-title {
+  font-family: var(--brand-font-head); font-size: 1.15rem; color: var(--brand-heading);
+  margin: 0 0 .8rem;
+}
+.nv-review-list { list-style: none; margin: 0; padding: 0; }
+.nv-review-entry { padding: .7rem 0; border-top: 1px solid var(--brand-line, rgba(0,0,0,.08)); }
+.nv-review-entry:first-child { border-top: 0; padding-top: 0; }
+.nv-review-head {
+  font-size: .78rem; text-transform: uppercase; letter-spacing: 1px;
+  color: var(--brand-accent-ink, var(--brand-accent)); margin-bottom: .35rem; font-weight: 700;
+}
+.nv-review-qa { margin: .3rem 0; }
+.nv-review-q { display: block; color: var(--brand-ink); }
+.nv-review-a { display: block; color: var(--brand-ink-soft, #556); font-size: .92rem; margin-top: .1rem; }
+
+/* ---- whackAMole: formative recognition game ---- */
+.nv-wam-instr { font-family: var(--brand-font-head); font-weight: 700; margin-bottom: .5rem; }
+.nv-wam-prompt { margin-bottom: .9rem; }
+.nv-wam-scoreboard { margin-bottom: .8rem; }
+.nv-wam-score {
+  display: inline-block; font-family: var(--brand-font-head); font-weight: 700;
+  padding: .2rem .7rem; border-radius: 999px;
+  background: var(--brand-surface, #eef2f4); color: var(--brand-heading);
+}
+.nv-wam-field {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
+  gap: .8rem; margin-bottom: 1rem;
+}
+.nv-wam-mole {
+  position: relative; display: flex; align-items: flex-end; justify-content: center;
+  min-height: 4.4rem; padding: .7rem .6rem .6rem; cursor: pointer; text-align: center;
+  border: 2px solid var(--brand-line, rgba(0,0,0,.15)); border-radius: var(--brand-radius, 10px);
+  background: var(--brand-light, #fff); color: var(--brand-ink); font: inherit;
+  animation: nv-wam-pop .38s both;   /* base stays VISIBLE if the animation never runs (reduced-motion / no-JS) */
+}
+.nv-wam-mole:nth-child(2n)   { animation-delay: .06s; }
+.nv-wam-mole:nth-child(3n)   { animation-delay: .12s; }
+.nv-wam-mole:nth-child(4n)   { animation-delay: .18s; }
+.nv-wam-mole:nth-child(5n)   { animation-delay: .24s; }
+.nv-wam-turf {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 34%;
+  background: var(--brand-surface, #eef2f4);
+  border-radius: 0 0 calc(var(--brand-radius, 10px) - 2px) calc(var(--brand-radius, 10px) - 2px);
+}
+.nv-wam-label { position: relative; z-index: 1; font-weight: 600; line-height: 1.25; }
+.nv-wam-mole:hover:not(:disabled) { border-color: var(--brand-accent); transform: translateY(-2px); }
+.nv-wam-mole:active:not(:disabled) { transform: scale(.96); }
+.nv-wam-mole.nv-wam-hit { border-color: var(--brand-correct); background: #e9faf1; }
+.nv-wam-mole.nv-wam-miss { border-color: var(--brand-incorrect); background: #fbeceb; }
+.nv-wam-mole.nv-wam-hit .nv-wam-turf { background: var(--brand-correct); opacity: .25; }
+.nv-wam-mole.nv-wam-miss .nv-wam-turf { background: var(--brand-incorrect); opacity: .25; }
+.nv-wam-mole.nv-wam-locked { opacity: .8; cursor: default; }
+.nv-wam-mole.nv-wam-locked:not(.nv-wam-whacked) { opacity: .55; }
+.nv-wam-fb { display: none; margin-top: .4rem; padding: .6rem .8rem; border-radius: var(--brand-radius, 10px); }
+.nv-wam-fb.show { display: block; }
+.nv-wam-fb.ok { background: #e9faf1; color: var(--brand-heading); }
+.nv-wam-fb.no { background: #fbeceb; color: var(--brand-heading); }
+@keyframes nv-wam-pop { from { opacity: 0; transform: translateY(55%) scale(.7); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .nv-wam-mole { animation: none; } }
+
+/* ---- memoryMatch: formative concentration game ---- */
+.nv-mm-instr { font-family: var(--brand-font-head); font-weight: 700; margin-bottom: .5rem; }
+.nv-mm-prompt { margin-bottom: .9rem; }
+.nv-mm-scoreboard { margin-bottom: .8rem; color: var(--brand-ink-soft, #556); font-size: .95rem; }
+.nv-mm-score { display: inline-block; font-family: var(--brand-font-head); font-weight: 700;
+  padding: .2rem .7rem; border-radius: 999px; background: var(--brand-surface, #eef2f4); color: var(--brand-heading); }
+/* Balanced rows: an explicit even-divisor column count (render emits --mm-cols) so the
+   top and bottom rows carry the same number of cards; minmax(0,1fr) lets cards shrink to
+   fit rather than reflow (which would re-ragged the rows). Narrow screens fall back to 2
+   columns — still balanced because the deck size is always even. (James, 2026-07-16) */
+.nv-mm-board { display: grid; grid-template-columns: repeat(var(--mm-cols, 4), minmax(0, 1fr)); gap: .7rem; margin-bottom: 1rem; }
+@media (max-width: 34rem) { .nv-mm-board { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.nv-mm-card {
+  position: relative; display: flex; align-items: center; justify-content: center;
+  min-height: 5rem; padding: .7rem .6rem; cursor: pointer; text-align: center; font: inherit;
+  border: 2px solid var(--brand-line, rgba(0,0,0,.15)); border-radius: var(--brand-radius, 10px);
+  background: var(--brand-light, #fff); color: var(--brand-ink);
+}
+/* Static fallback (no JS): the "?" back is hidden and the faces read as a study list. */
+.nv-mm-back { display: none; font-family: var(--brand-font-head); font-weight: 700; font-size: 1.6rem; color: var(--brand-accent); }
+.nv-mm-face { position: relative; z-index: 1; font-weight: 600; line-height: 1.25; }
+/* Live game mode: cards start face-down (show "?"), flip up on .nv-mm-up / .nv-mm-done. */
+.nv-mm-live .nv-mm-card .nv-mm-back { display: block; }
+.nv-mm-live .nv-mm-card .nv-mm-face { display: none; }
+.nv-mm-live .nv-mm-card.nv-mm-up .nv-mm-back,
+.nv-mm-live .nv-mm-card.nv-mm-done .nv-mm-back { display: none; }
+.nv-mm-live .nv-mm-card.nv-mm-up .nv-mm-face,
+.nv-mm-live .nv-mm-card.nv-mm-done .nv-mm-face { display: block; }
+.nv-mm-live .nv-mm-card { transition: transform .15s, border-color .15s, background .15s; }
+.nv-mm-live .nv-mm-card:hover:not(:disabled) { border-color: var(--brand-accent); transform: translateY(-2px); }
+.nv-mm-card.nv-mm-up { border-color: var(--brand-accent); background: var(--brand-surface, #eef2f4); }
+.nv-mm-card.nv-mm-done { border-color: var(--brand-correct); background: #e9faf1; cursor: default; }
+.nv-mm-fb { display: none; margin-top: .4rem; padding: .6rem .8rem; border-radius: var(--brand-radius, 10px); }
+.nv-mm-fb.show { display: block; }
+.nv-mm-fb.ok { background: #e9faf1; color: var(--brand-heading); }
+.nv-mm-fb.no { background: #fbeceb; color: var(--brand-heading); }
+@media (prefers-reduced-motion: reduce) { .nv-mm-live .nv-mm-card { transition: none; } }
+
+/* ---- hangman: formative word-guess game (circle-X figure, NOT a gallows) ---- */
+.nv-hg-instr { font-family: var(--brand-font-head); font-weight: 700; margin-bottom: .5rem; }
+.nv-hg-prompt { margin-bottom: .9rem; }
+.nv-hg-top { display: flex; align-items: center; gap: 1.2rem; flex-wrap: wrap; margin-bottom: 1rem; }
+.nv-hg-figure { flex: 0 0 auto; }
+.nv-hg-svg { width: 6rem; height: 6rem; overflow: visible; }
+/* ghost outline of the whole circle-X, ALWAYS visible so the figure reads from the start */
+.nv-hg-ghost { fill: none; stroke: var(--brand-incorrect, #d1495b); stroke-width: 6; stroke-linecap: round; opacity: .16; }
+/* solid segments filled in one per wrong guess (4 quarter-arcs + 2 X strokes, or ring + 2 X) */
+.nv-hg-piece { fill: none; stroke: var(--brand-incorrect, #d1495b); stroke-width: 7; stroke-linecap: round;
+  opacity: 0; transition: opacity .3s ease; }
+.nv-hg-status { flex: 1 1 12rem; min-width: 12rem; }
+.nv-hg-lives { font-family: var(--brand-font-head); font-weight: 700; color: var(--brand-heading); margin-bottom: .5rem; }
+.nv-hg-word { display: flex; flex-wrap: wrap; gap: .35rem .5rem; align-items: flex-end; font-family: var(--brand-font-head); }
+.nv-hg-slot { display: inline-flex; align-items: center; justify-content: center;
+  min-width: 1.3rem; border-bottom: 3px solid var(--brand-line, rgba(0,0,0,.3)); }
+.nv-hg-ch { font-weight: 700; font-size: 1.25rem; color: var(--brand-heading); line-height: 1.3; }
+.nv-hg-slot.nv-hg-missed .nv-hg-ch { color: var(--brand-incorrect, #d1495b); }
+.nv-hg-space { display: inline-block; width: .9rem; }
+.nv-hg-fixed { font-weight: 700; font-size: 1.25rem; color: var(--brand-heading); }
+.nv-hg-hint { margin-top: .6rem; color: var(--brand-ink-soft, #556); font-size: .95rem; }
+.nv-hg-keys { display: flex; flex-wrap: wrap; gap: .3rem; margin-bottom: .8rem; }
+.nv-hg-key {
+  min-width: 2rem; padding: .4rem .5rem; cursor: pointer; font: inherit; font-weight: 600;
+  border: 2px solid var(--brand-line, rgba(0,0,0,.15)); border-radius: var(--brand-radius, 8px);
+  background: var(--brand-light, #fff); color: var(--brand-ink);
+}
+.nv-hg-key:hover:not(:disabled) { border-color: var(--brand-accent); }
+.nv-hg-key:disabled { cursor: default; opacity: .6; }
+.nv-hg-key.nv-hg-key-hit { border-color: var(--brand-correct); background: #e9faf1; opacity: 1; }
+.nv-hg-key.nv-hg-key-miss { border-color: var(--brand-incorrect); background: #fbeceb; opacity: 1; }
+.nv-hg-fb { display: none; margin-top: .4rem; padding: .6rem .8rem; border-radius: var(--brand-radius, 10px); }
+.nv-hg-fb.show { display: block; }
+.nv-hg-fb.ok { background: #e9faf1; color: var(--brand-heading); }
+.nv-hg-fb.no { background: #fbeceb; color: var(--brand-heading); }
+@media (prefers-reduced-motion: reduce) { .nv-hg-piece { transition: none; } }
+/* Solve the Puzzle — guess the whole term */
+.nv-hg-solve { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; margin-bottom: .8rem; }
+.nv-hg-solve-input { flex: 1 1 14rem; min-width: 10rem; font: inherit; padding: .45rem .7rem;
+  border: 2px solid var(--brand-line, rgba(0,0,0,.15)); border-radius: var(--brand-radius, 8px);
+  background: var(--brand-light, #fff); color: var(--brand-ink); }
+.nv-hg-solve-input:focus-visible { outline: 2px solid var(--brand-accent, var(--brand-correct)); outline-offset: 1px; }
+.nv-hg-solve-btn { flex: 0 0 auto; }
+.nv-hg-solve-input:disabled, .nv-hg-solve-btn:disabled { opacity: .55; cursor: default; }
+
+/* ---- wheelOfFortune: hybrid review game (category wheel + MCQ + puzzle reveal) ---- */
+.nv-wof { background: var(--brand-band-bg); color: var(--brand-band-ink); border-radius: var(--brand-radius-lg);
+  padding: 1.5rem 1.6rem; margin: var(--brand-gap) 0; }
+.nv-wof-instr,
+.nv-wof-prompt,
+.nv-wof-hint {
+  background: var(--brand-light); color: var(--brand-ink);
+  border: 1px solid var(--brand-line); border-radius: var(--brand-radius);
+  padding: .75rem .9rem; margin-bottom: .75rem;
+}
+.nv-wof-instr { font-family: var(--brand-font-head); font-weight: 700; }
+.nv-wof-prompt { font-weight: 600; }
+.nv-wof-word { display: flex; flex-wrap: wrap; gap: .6rem .35rem; align-items: flex-end;
+  font-family: var(--brand-font-head); margin-bottom: .75rem;
+  background: var(--brand-light); color: var(--brand-ink);
+  border: 1px solid var(--brand-line); border-radius: var(--brand-radius);
+  padding: .9rem 1rem; }
+/* Letter tiles: fixed-size boxes so every slot is identical and wrapped puzzle
+   rows keep a consistent gap (row-gap above) instead of sitting on top of each other. */
+.nv-wof-slot { display: inline-flex; align-items: center; justify-content: center;
+  width: 1.7rem; height: 2.1rem; box-sizing: border-box; flex: 0 0 auto;
+  border: 2px solid var(--brand-line); border-bottom: 3px solid var(--brand-heading);
+  border-radius: 5px; background: var(--brand-light); }
+.nv-wof-ch { font-weight: 700; font-size: 1.25rem; color: var(--brand-heading); line-height: 1; }
+.nv-wof-space { display: inline-block; width: .9rem; height: 2.1rem; }
+.nv-wof-fixed { font-weight: 700; font-size: 1.25rem; color: var(--brand-heading); }
+.nv-wof-hint { font-size: .95rem; }
+.nv-wof-stage { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 1.1rem 1.6rem; }
+.nv-wof-wheelwrap { position: relative; width: 14rem; max-width: 60%; flex: 0 0 auto; }
+.nv-wof-art { width: 100%; height: auto; display: block; border-radius: 50%; }
+.nv-wof-wheelwrap.nv-wof--art { overflow: visible; filter: drop-shadow(0 8px 16px rgba(0,0,0,.25)); }
+.nv-wof-wheelwrap.nv-wof--art .nv-wof-wheel {
+  position: absolute; inset: 7%; width: 86%; opacity: .28; mix-blend-mode: screen;
+}
+.nv-wof-wheelwrap.nv-wof--art .nv-wof-seg { fill: transparent; stroke: rgba(255,255,255,.92); stroke-width: 1.8; }
+.nv-wof-wheelwrap.nv-wof--art .nv-wof-segnum { fill: rgba(255,255,255,.95); paint-order: stroke; stroke: rgba(11,44,55,.75); stroke-width: 2px; }
+.nv-wof-wheelwrap.nv-wof--art .nv-wof-hub { fill: transparent; stroke: transparent; }
+.nv-wof-wheel { width: 100%; height: auto; display: block; }
+.nv-wof-rotor { transform-box: fill-box; transform-origin: center; transition: transform 3.2s cubic-bezier(.16,.84,.28,1); }
+/* Cycle wheel wedges through the full brand section palette (green/gold/dark/blue/teal)
+   instead of one accent at varying opacity, for more brand color on the wheel. */
+.nv-wof-seg { fill: var(--sec-green, var(--brand-accent)); stroke: var(--brand-light); stroke-width: 1.5; }
+.nv-wof-seg:nth-of-type(5n+2) { fill: var(--sec-gold, var(--brand-accent)); }
+.nv-wof-seg:nth-of-type(5n+3) { fill: var(--sec-dark, var(--brand-heading)); }
+.nv-wof-seg:nth-of-type(5n+4) { fill: var(--sec-blue, var(--brand-accent)); }
+.nv-wof-seg:nth-of-type(5n)   { fill: var(--sec-teal, var(--brand-accent)); }
+.nv-wof-seg.nv-wof-seg-done { fill: var(--brand-ink-soft, var(--brand-line)); opacity: .38; }
+/* White wedge numbers get a dark outline so they stay legible on every wedge color (incl. gold). */
+.nv-wof-segnum { fill: var(--brand-light); font-family: var(--brand-font-head); font-weight: 700; font-size: 13px;
+  paint-order: stroke; stroke: var(--brand-heading); stroke-width: 2.5px; }
+.nv-wof-hub { fill: var(--brand-heading); stroke: var(--brand-light); stroke-width: 2; }
+.nv-wof-pointer { position: absolute; top: -3px; left: 50%; transform: translateX(-50%); width: 0; height: 0;
+  border-left: 11px solid transparent; border-right: 11px solid transparent; border-top: 19px solid var(--brand-heading);
+  z-index: 2; filter: drop-shadow(0 1px 1px rgba(0,0,0,.3)); }
+/* Legend sits at the BOTTOM of the block (moved out of .nv-wof-stage): a compact
+   TWO-COLUMN grid of categories, smaller type so it reads as a quiet reference key. */
+.nv-wof-legend {
+  list-style: none; margin: 1.1rem 0 0; padding: .7rem .95rem;
+  display: grid; grid-template-columns: 1fr 1fr; gap: .3rem 1.6rem;
+  background: var(--brand-light); color: var(--brand-ink);
+  border: 1px solid var(--brand-line); border-radius: var(--brand-radius);
+  font-size: .82rem;
+}
+.nv-wof-cat { display: flex; align-items: baseline; gap: .5rem; color: var(--brand-ink); }
+.nv-wof-catnum { display: inline-flex; align-items: center; justify-content: center; min-width: 1.2rem; height: 1.2rem;
+  border-radius: 50%; background: var(--brand-light); color: var(--brand-heading);
+  border: 2px solid var(--brand-accent); font-weight: 700; font-size: .72rem; }
+.nv-wof-catname { font-family: var(--brand-font-head); font-weight: 700; color: var(--brand-heading); }
+.nv-wof-catleft { color: var(--brand-ink-soft); font-size: .85rem; }
+.nv-wof-cat.nv-wof-cat-done { opacity: .5; }
+.nv-wof-spin { min-width: 8rem; flex: 0 0 auto; }
+.nv-wof-panels { margin-top: 1.2rem; }
+.nv-wof-panel { border: 1px solid var(--brand-line); border-radius: 12px; padding: 1.1rem 1.3rem;
+  min-width: 0;
+  background: var(--brand-light); color: var(--brand-ink); margin: 0; }
+.nv-wof-panel[hidden] { display: none; }
+.nv-wof-q { font-family: var(--brand-font-head); font-weight: 700; padding: 0; line-height: 1.35; overflow-wrap: anywhere; }
+.nv-wof-qcat { color: var(--brand-accent-ink); margin-right: .4rem; }
+.nv-wof-opts { display: grid; gap: .5rem; margin: .9rem 0; }
+.nv-wof-opt { display: flex; align-items: center; gap: .6rem; padding: .6rem .8rem; border: 1px solid var(--brand-line);
+  border-radius: 10px; cursor: pointer; min-width: 0; line-height: 1.35; }
+.nv-wof-opt input { flex: 0 0 auto; }
+.nv-wof-optlabel { min-width: 0; overflow-wrap: anywhere; }
+.nv-wof-opt:focus-within { outline: 2px solid var(--brand-accent, var(--brand-correct)); outline-offset: 1px; }
+.nv-wof-opt.nv-wof-correct { border-color: var(--brand-correct); background: #e9faf1; }
+.nv-wof-opt.nv-wof-wrong { border-color: var(--brand-incorrect); background: #fdecec; }
+.nv-wof-nudge .nv-wof-panel:not([hidden]) { animation: nv-gs-shake .3s ease; }
+.nv-wof-turn { margin-top: 1.1rem; background: var(--brand-light); color: var(--brand-ink);
+  border: 1px solid var(--brand-line); border-radius: var(--brand-radius); padding: 1rem; }
+.nv-wof-turn[hidden] { display: none; }
+.nv-wof-turn-instr { font-family: var(--brand-font-head); font-weight: 700; margin-bottom: .6rem; }
+.nv-wof-keys { display: flex; flex-wrap: wrap; gap: .3rem; margin-bottom: .8rem; }
+.nv-wof-key { min-width: 2rem; padding: .4rem .5rem; cursor: pointer; font: inherit; font-weight: 600;
+  border: 2px solid var(--brand-line, rgba(0,0,0,.15)); border-radius: var(--brand-radius, 8px);
+  background: var(--brand-light, #fff); color: var(--brand-ink); }
+.nv-wof-key:hover:not(:disabled) { border-color: var(--brand-accent); }
+.nv-wof-key:disabled { cursor: default; opacity: .55; }
+.nv-wof-key.nv-wof-key-hit { border-color: var(--brand-correct); background: #e9faf1; opacity: 1; }
+.nv-wof-key.nv-wof-key-miss { border-color: var(--brand-incorrect); background: #fbeceb; opacity: 1; }
+/* Persistent solve area (always visible below the wheel, not gated behind an earned turn),
+   so it owns its own light surface + contrasting ink like every other component. */
+.nv-wof-solvewrap { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center;
+  margin-top: 1.1rem; padding: .8rem .9rem; background: var(--brand-light); color: var(--brand-ink);
+  border: 1px solid var(--brand-line); border-radius: var(--brand-radius); }
+.nv-wof-solvelabel { flex: 1 0 100%; font-family: var(--brand-font-head); font-weight: 700;
+  color: var(--brand-heading); }
+.nv-wof-solveinput { flex: 1 1 14rem; min-width: 12rem; padding: .5rem .7rem; font: inherit;
+  border: 2px solid var(--brand-line, rgba(0,0,0,.15)); border-radius: var(--brand-radius, 8px);
+  background: var(--brand-light, #fff); color: var(--brand-ink); }
+.nv-wof-fb { margin-top: 1rem; padding: .9rem 1.1rem; border-radius: 10px;
+  background: var(--brand-light); color: var(--brand-ink);
+  border: 1px solid var(--brand-line); display: none; }
+.nv-wof-fb.show { display: block; }
+.nv-wof-fb.ok { border-left: 5px solid var(--brand-correct); }
+.nv-wof-fb.no { border-left: 5px solid var(--brand-incorrect); }
+@media (prefers-reduced-motion: reduce) {
+  .nv-wof-rotor { transition: none; }
+  .nv-wof-nudge .nv-wof-panel:not([hidden]) { animation: none; }
+}
+
+/* simulation (SIM Studio) — a software-sim walkthrough: annotated screenshot frames the
+   learner steps through, interleaved with native content frames. Frames are all in the DOM
+   (no-JS = an ordered illustrated walkthrough); the player shows one at a time. Markers are
+   decorative overlays positioned in %-of-image coords from the normalised hotspot. All colors
+   via --brand-* keys (theme-agnostic); markers BASE-VISIBLE so a non-running pulse never hides
+   the cue. */
+.nv-sim-title { margin: 0 0 .6rem; color: var(--brand-heading); }
+.nv-sim-frames { list-style: none; margin: 0; padding: 0; }
+.nv-sim-frame { margin: 0; }
+.nv-sim-figure { position: relative; margin: 0; overflow: hidden; border-radius: var(--brand-radius, 10px); }
+.nv-sim-figure img { display: block; width: 100%; height: auto; }
+.nv-sim-caption { margin-top: .6rem; padding: .6rem .8rem; background: var(--brand-surface, #f4f6f8);
+  border-left: 4px solid var(--brand-accent); border-radius: var(--brand-radius, 10px); color: var(--brand-body); }
+.nv-sim-content { padding: .4rem 0; }
+/* overlay markers — positioned at the hotspot; the ring pulses (cosmetic, base stays visible) */
+.nv-sim-marker { position: absolute; transform: translate(-50%, -50%); pointer-events: none;
+  width: 2.2rem; height: 2.2rem; border: 3px solid var(--brand-accent); border-radius: 50%;
+  box-shadow: 0 0 0 3px rgba(255,255,255,.7); box-sizing: border-box; }
+.nv-sim-marker.nv-sim-click, .nv-sim-marker.nv-sim-doubleClick { animation: nv-sim-pulse 1.4s ease-out infinite; }
+.nv-sim-marker.nv-sim-type, .nv-sim-marker.nv-sim-hotkey, .nv-sim-marker.nv-sim-scroll { border-radius: var(--brand-radius, 8px); }
+.nv-sim-arrow { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.nv-sim-arrow-line { stroke: var(--brand-accent); stroke-width: 1; vector-effect: non-scaling-stroke; }
+@keyframes nv-sim-pulse { 0% { box-shadow: 0 0 0 0 var(--brand-accent), 0 0 0 3px rgba(255,255,255,.7); }
+  70% { box-shadow: 0 0 0 10px transparent, 0 0 0 3px rgba(255,255,255,.7); } 100% { box-shadow: 0 0 0 0 transparent, 0 0 0 3px rgba(255,255,255,.7); } }
+.nv-sim-controls { display: flex; align-items: center; gap: .6rem; margin-top: .7rem; }
+.nv-sim-counter { color: var(--brand-body); font-size: .9rem; opacity: .8; margin-right: auto; }
+.nv-sim-fb { display: none; margin-top: .5rem; padding: .5rem .8rem; border-radius: var(--brand-radius, 10px); }
+.nv-sim-fb.show { display: block; }
+.nv-sim-fb.ok { background: #e9faf1; color: var(--brand-heading); }
+@media (prefers-reduced-motion: reduce) { .nv-sim-marker { animation: none; } }
+
+/* ---- SIM Studio slice-2: animated overlays + frame transitions (the deck-motion borrow, spec §4a).
+   Overlays are authored annotations layered ON TOP of the screenshot; each ENTERS when the player
+   marks its frame `.nv-sim-playing` (staggered by --i, author order) and EXITS when the frame gets
+   `.nv-sim-exiting` on advance. Effect names mirror the deck engine (pptx_animate / pptx_transitions)
+   so a future sim→deck embed maps 1:1. BASE-VISIBLE: an overlay whose animation never runs (no-JS /
+   reduced-motion) stays fully visible — no opacity:0 base state. All colors via --brand-* keys. */
+.nv-sim-overlays { position: absolute; inset: 0; pointer-events: none; }
+.nv-sim-ov { position: absolute; box-sizing: border-box; }
+.nv-sim-ov-text { transform: translate(-50%, -50%); padding: .28em .6em; max-width: 40%;
+  background: var(--brand-accent); color: #fff; border-radius: var(--brand-radius, 8px);
+  font-size: .95rem; font-weight: 600; line-height: 1.25; box-shadow: 0 2px 10px rgba(0,0,0,.25); }
+.nv-sim-ov-shape { border: 3px solid var(--brand-accent); box-sizing: border-box; }
+.nv-sim-shape-box { border-radius: var(--brand-radius, 6px); }
+.nv-sim-shape-circle { border-radius: 50%; }
+.nv-sim-shape-highlight { border: none; background: var(--brand-accent); opacity: .28; border-radius: var(--brand-radius, 6px); }
+.nv-sim-shape-arrow { border: none; }
+.nv-sim-shape-arrow::after { content: ""; position: absolute; inset: 0; background: var(--brand-accent);
+  clip-path: polygon(0 35%, 62% 35%, 62% 15%, 100% 50%, 62% 85%, 62% 65%, 0 65%); }
+
+/* entrance — plays only on the active (.nv-sim-playing) frame; staggered by author order */
+.nv-sim-playing .nv-ov-enter-fade    { animation: nv-ov-in-fade .5s both;    animation-delay: calc(var(--i,0) * 90ms); }
+.nv-sim-playing .nv-ov-enter-rise    { animation: nv-ov-in-rise .5s both;    animation-delay: calc(var(--i,0) * 90ms); }
+.nv-sim-playing .nv-ov-enter-flyleft { animation: nv-ov-in-flyleft .5s both; animation-delay: calc(var(--i,0) * 90ms); }
+.nv-sim-playing .nv-ov-enter-flyright{ animation: nv-ov-in-flyright .5s both;animation-delay: calc(var(--i,0) * 90ms); }
+.nv-sim-playing .nv-ov-enter-wipe    { animation: nv-ov-in-wipe .5s both;    animation-delay: calc(var(--i,0) * 90ms); }
+/* nv-ov-enter-appear = instant (no keyframe) */
+
+/* exit — plays when the frame is advancing away */
+.nv-sim-exiting .nv-ov-exit-fade     { animation: nv-ov-out-fade .22s both; }
+.nv-sim-exiting .nv-ov-exit-rise     { animation: nv-ov-out-rise .22s both; }
+.nv-sim-exiting .nv-ov-exit-flyleft  { animation: nv-ov-out-flyleft .22s both; }
+.nv-sim-exiting .nv-ov-exit-flyright { animation: nv-ov-out-flyright .22s both; }
+.nv-sim-exiting .nv-ov-exit-wipe     { animation: nv-ov-out-wipe .22s both; }
+
+/* NB text overlays are centered on their point via translate(-50%,-50%); the fly keyframes
+   compose that base transform with the motion offset. */
+@keyframes nv-ov-in-fade     { from { opacity: 0; } to { opacity: 1; } }
+@keyframes nv-ov-in-rise     { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+@keyframes nv-ov-in-flyleft  { from { opacity: 0; transform: translateX(-28px); } to { opacity: 1; transform: none; } }
+@keyframes nv-ov-in-flyright { from { opacity: 0; transform: translateX(28px); } to { opacity: 1; transform: none; } }
+@keyframes nv-ov-in-wipe     { from { opacity: 0; clip-path: inset(0 100% 0 0); } to { opacity: 1; clip-path: inset(0 0 0 0); } }
+@keyframes nv-ov-out-fade    { to { opacity: 0; } }
+@keyframes nv-ov-out-rise    { to { opacity: 0; transform: translateY(-16px); } }
+@keyframes nv-ov-out-flyleft { to { opacity: 0; transform: translateX(-28px); } }
+@keyframes nv-ov-out-flyright{ to { opacity: 0; transform: translateX(28px); } }
+@keyframes nv-ov-out-wipe    { to { opacity: 0; clip-path: inset(0 0 0 100%); } }
+
+/* frame transitions — the classic deck set, played as the frame enters (no morph) */
+.nv-sim-trans-fade  { animation: nv-sim-t-fade .4s both; }
+.nv-sim-trans-push  { animation: nv-sim-t-push .4s both; }
+.nv-sim-trans-wipe  { animation: nv-sim-t-wipe .4s both; }
+.nv-sim-trans-cover { animation: nv-sim-t-cover .4s both; }
+.nv-sim-trans-split { animation: nv-sim-t-split .4s both; }
+/* nv-sim-trans-cut = instant (no keyframe) */
+@keyframes nv-sim-t-fade  { from { opacity: 0; } to { opacity: 1; } }
+@keyframes nv-sim-t-push  { from { opacity: .4; transform: translateX(5%); } to { opacity: 1; transform: none; } }
+@keyframes nv-sim-t-wipe  { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+@keyframes nv-sim-t-cover { from { transform: translateY(6%); } to { transform: none; } }
+@keyframes nv-sim-t-split { from { clip-path: inset(0 50% 0 50%); } to { clip-path: inset(0 0 0 0); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .nv-sim-ov, .nv-sim-frame[class*="nv-sim-trans-"] { animation: none !important; }
+}
+
+/* ============================ dunkBooth (arcade reward) ============================
+   FORMATIVE reward-shell that replaces the retired Quiz Show (James, 2026-07-27). The
+   character sits above the water; a correct answer arms the timing meter; a release inside
+   the strike zone drops the character with a splash. The character is a zero-asset emoji
+   glyph (keyed on data-character) so SCORM output stays self-contained and cross-platform;
+   swapping in Kenney CC0 shooting-gallery art is an optional later upgrade. */
+.nv-dunk-instr { font-family: var(--brand-font-head); font-weight: 700; margin-bottom: .5rem; }
+.nv-dunk-prompt { margin-bottom: .9rem; }
+.nv-dunk-stage {
+  display: flex; flex-wrap: wrap; gap: 1.1rem; align-items: flex-end;
+  margin: .4rem 0 1rem; }
+.nv-dunk-booth {
+  position: relative; flex: 0 0 auto; width: 190px; height: 200px;
+  border: 2px solid var(--brand-line); border-radius: var(--brand-radius, 10px);
+  background: var(--brand-surface); overflow: hidden; }
+.nv-dunk-target {
+  position: absolute; left: 50%; top: 34px; transform: translateX(-50%);
+  font-size: 62px; line-height: 1; }
+.nv-dunk-target::before { content: "🤡"; }              /* default: carnival clown */
+.nv-dunk-target[data-character="patient"]::before { content: "🤒"; }
+.nv-dunk-target[data-character="doctor"]::before  { content: "🧑‍⚕️"; }
+.nv-dunk-target[data-character="nurse"]::before   { content: "👩‍⚕️"; }
+.nv-dunk-target.nv-dunk-dunked { animation: nv-dunk-drop .7s cubic-bezier(.5,0,.9,.6) both; }
+.nv-dunk-water {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 46px;
+  background: linear-gradient(180deg, var(--brand-accent) 0%, var(--brand-heading) 140%);
+  opacity: .30; }
+.nv-dunk-water.nv-dunk-splash::after {
+  content: ""; position: absolute; left: 50%; bottom: 30px; width: 12px; height: 12px;
+  margin-left: -6px; border-radius: 50%;
+  border: 3px solid var(--brand-accent); opacity: 0;
+  animation: nv-dunk-splash .7s ease-out .18s both; }
+.nv-dunk-meter { flex: 1 1 240px; min-width: 220px; }
+.nv-dunk-track {
+  position: relative; height: 26px; border-radius: 13px;
+  background: var(--brand-light); border: 1px solid var(--brand-line);
+  overflow: hidden; margin-bottom: .6rem; }
+.nv-dunk-zone {
+  position: absolute; top: 0; bottom: 0; left: 30%; width: 40%;
+  background: var(--brand-correct); opacity: .32;
+  border-left: 2px solid var(--brand-correct); border-right: 2px solid var(--brand-correct); }
+.nv-dunk-indicator {
+  position: absolute; top: -3px; bottom: -3px; left: 0; width: 4px; margin-left: -2px;
+  background: var(--brand-heading); border-radius: 2px; }
+.nv-dunk-indicator.nv-dunk-frozen { background: var(--brand-accent); width: 6px; margin-left: -3px; }
+.nv-dunk-tally { font-family: var(--brand-font-head); font-weight: 700; margin: .2rem 0 .8rem; }
+.nv-dunk-count { color: var(--brand-accent); }
+.nv-dunk-panels { margin-top: .4rem; }
+.nv-dunk-panel {
+  border: 1px solid var(--brand-line); border-radius: var(--brand-radius, 10px);
+  padding: .8rem 1rem; margin: 0; }
+.nv-dunk-q { font-weight: 600; margin-bottom: .55rem; }
+.nv-dunk-qnum { color: var(--brand-accent); font-weight: 700; margin-right: .25rem; }
+.nv-dunk-opts { display: grid; gap: .35rem; margin-bottom: .7rem; }
+.nv-dunk-opt {
+  display: flex; gap: .5rem; align-items: flex-start; padding: .4rem .6rem;
+  border: 1px solid var(--brand-line); border-radius: var(--brand-radius, 10px); cursor: pointer; }
+.nv-dunk-opt:hover { border-color: var(--brand-accent); }
+.nv-dunk-opt.nv-dunk-right { border-color: var(--brand-correct); background: #e9faf1; }
+.nv-dunk-opt.nv-dunk-wrong { border-color: var(--brand-incorrect); background: #fbeceb; }
+.nv-dunk-fb { display: none; margin-top: .6rem; padding: .6rem .8rem; border-radius: var(--brand-radius, 10px); }
+.nv-dunk-fb.show { display: block; }
+.nv-dunk-fb.ok { background: #e9faf1; color: var(--brand-heading); }
+.nv-dunk-fb.no { background: #fbeceb; color: var(--brand-heading); }
+.nv-dunk-restart { margin-top: .7rem; }
+.nv-dunk-empty .nv-dunk-instr { color: var(--brand-ink-soft); font-style: italic; }
+@keyframes nv-dunk-drop {
+  from { transform: translateX(-50%) translateY(0) rotate(0); opacity: 1; }
+  to   { transform: translateX(-50%) translateY(150px) rotate(38deg); opacity: .15; } }
+@keyframes nv-dunk-splash {
+  0%   { opacity: .9; transform: scale(.3); }
+  100% { opacity: 0; transform: scale(4.2); } }
+@media (prefers-reduced-motion: reduce) {
+  .nv-dunk-target.nv-dunk-dunked, .nv-dunk-water.nv-dunk-splash::after { animation: none; }
+  .nv-dunk-target.nv-dunk-dunked { opacity: .2; transform: translateX(-50%) translateY(120px); } }
+
+/* balloonPop — 2-AXIS carnival board (distinct from dunkBooth). A grid of CSS balloons (zero-asset,
+   tinted by data-swatch) + a VERTICAL power meter. Left/Right arrows aim the column; hold Space to
+   run the power meter and release to throw the dart at that power (low = bottom row, high = top).
+   The board grows 3×3 → 4×4 and targets shrink as the difficulty level rises (both driven by the
+   --bp-cols / --bp-scale custom properties the engine sets). */
+.nv-balloon-instr { font-family: var(--brand-font-head); font-weight: 700; margin-bottom: .5rem; }
+.nv-balloon-prompt { margin-bottom: .9rem; }
+.nv-balloon-diffs { display: flex; gap: .4rem; margin: .2rem 0 .7rem; }
+.nv-balloon-diff {
+  padding: .35rem .9rem; border: 2px solid var(--brand-heading);
+  background: var(--brand-surface); color: var(--brand-heading);
+  border-radius: var(--brand-radius, 10px); cursor: pointer; font-size: .9rem; font-weight: 600; }
+.nv-balloon-diff:hover { border-color: var(--brand-accent); color: var(--brand-accent); }
+.nv-balloon-diff-on {                                        /* selected: filled, high contrast */
+  background: var(--brand-heading); color: var(--brand-surface); border-color: var(--brand-heading); }
+.nv-balloon-stage {
+  position: relative;                                        /* positioning context for the flying dart */
+  display: flex; flex-wrap: wrap; gap: 1.2rem; align-items: stretch;
+  margin: .4rem 0 .9rem; }
+/* the thrown dart: a flat projectile that flies (in screen space, over the 3D board) to the target
+   balloon, then is removed when it lands. `wrap` carries the travel translate; the inner dart is
+   oriented along the path. */
+.nv-balloon-proj { position: absolute; top: 0; left: 0; z-index: 6; pointer-events: none;
+  will-change: transform; }                                  /* moved per-frame by rAF (real parabola) */
+.nv-balloon-proj-dart {                                      /* centered on the projectile's point */
+  position: absolute; left: 0; top: 0; width: 6px; height: 44px; margin-left: -3px; margin-top: -22px;
+  transform-origin: 50% 50%;
+  background: linear-gradient(180deg, var(--brand-accent) 0%, var(--brand-heading) 100%);
+  border-radius: 3px 3px 0 0; }
+.nv-balloon-proj-dart::before {                              /* the dart tip */
+  content: ""; position: absolute; left: 50%; top: -10px; transform: translateX(-50%);
+  border-left: 5px solid transparent; border-right: 5px solid transparent;
+  border-bottom: 11px solid var(--brand-heading); }
+.nv-balloon-proj-dart::after {                               /* the fletching */
+  content: ""; position: absolute; left: 50%; bottom: -2px; transform: translateX(-50%);
+  width: 14px; height: 7px; background: var(--brand-accent); opacity: .8;
+  clip-path: polygon(0 100%, 50% 0, 100% 100%); }
+/* the carnival stall SCENE (drawn in flat perspective): a striped canopy up top, two side stall
+   walls converging back to the balloon board, and a grass floor filling the gap between the
+   thrower (dart, foreground) and the board. All scenery is decorative + pointer-events:none; the
+   balloon grid sits on the back wall and the dart stands on the grass in front. */
+.nv-balloon-scene {
+  position: relative; flex: 1 1 340px; min-height: 330px; overflow: hidden;
+  border: 3px solid var(--brand-heading); border-radius: var(--brand-radius, 10px);
+  background: linear-gradient(180deg, #cfeafc 0%, #eaf6fe 60%); }   /* sky behind the booth */
+.nv-balloon-scene > .nv-balloon-canopy,
+.nv-balloon-scene > .nv-balloon-wall,
+.nv-balloon-scene > .nv-balloon-floor,
+.nv-balloon-scene > .nv-balloon-back { position: absolute; pointer-events: none; }
+.nv-balloon-canopy {                                         /* striped roof, narrowing to the back */
+  left: 0; right: 0; top: 0; height: 13%; z-index: 1;
+  clip-path: polygon(0% 0%, 100% 0%, 76% 100%, 24% 100%);
+  background: repeating-linear-gradient(90deg, #d24b3f 0 22px, #f5ede0 22px 44px); }
+.nv-balloon-wall {                                           /* side stall walls leading to the board */
+  top: 0; bottom: 0; width: 100%; z-index: 0;
+  background:
+    repeating-linear-gradient(180deg, rgba(0,0,0,.06) 0 2px, transparent 2px 16px),
+    linear-gradient(90deg, #b98a56, #caa06a); }
+.nv-balloon-wall-l { clip-path: polygon(0% 0%, 24% 13%, 24% 55%, 0% 100%); }
+.nv-balloon-wall-r { clip-path: polygon(100% 0%, 76% 13%, 76% 55%, 100% 100%);
+  background:
+    repeating-linear-gradient(180deg, rgba(0,0,0,.06) 0 2px, transparent 2px 16px),
+    linear-gradient(90deg, #caa06a, #a87c48); }               /* mirrored shading for depth */
+.nv-balloon-floor {                                          /* grass between the thrower and the board */
+  left: 0; right: 0; top: 0; bottom: 0; z-index: 0;
+  clip-path: polygon(24% 55%, 76% 55%, 100% 100%, 0% 100%);
+  background:
+    repeating-linear-gradient(92deg, rgba(255,255,255,.06) 0 3px, transparent 3px 10px),
+    repeating-linear-gradient(88deg, rgba(0,0,0,.05) 0 4px, transparent 4px 13px),
+    linear-gradient(180deg, #6fb24d 0%, #4c8c37 100%); }
+.nv-balloon-back {                                           /* the board the balloons hang on */
+  left: 24%; right: 24%; top: 12%; height: 43%; z-index: 1;
+  border: 3px solid rgba(0,0,0,.18); border-radius: 6px;
+  background: linear-gradient(180deg, #ece0c6 0%, #dccba6 100%);
+  box-shadow: inset 0 2px 8px rgba(0,0,0,.12); }
+.nv-balloon-grid {                                           /* the balloons, on the back wall */
+  --bp-cols: 3; --bp-scale: 1;
+  position: absolute; left: 25%; right: 25%; top: 14%; height: 39%; z-index: 3;
+  display: grid; gap: 2%;
+  grid-template-columns: repeat(var(--bp-cols), 1fr);
+  grid-template-rows: repeat(var(--bp-cols), 1fr);           /* definite rows so cells size to the board */
+  align-items: center; justify-items: center; }
+.nv-balloon-grid:focus { outline: 3px solid var(--brand-accent); outline-offset: 4px; }
+/* the aiming dart stands on the grass in the foreground, pivoting left/right to aim */
+.nv-balloon-launcher {
+  position: absolute; left: 50%; bottom: 10px; z-index: 4; width: 0; height: 0;
+  transform: translateX(-50%); }
+.nv-balloon-dart {
+  position: absolute; left: -3px; bottom: 0; width: 6px; height: 52px;
+  transform-origin: 50% 100%; transform: rotate(0deg);
+  transition: transform .16s ease-out;
+  background: linear-gradient(180deg, var(--brand-accent) 0%, var(--brand-heading) 100%);
+  border-radius: 3px 3px 0 0; }
+.nv-balloon-dart::before {                                   /* the dart tip */
+  content: ""; position: absolute; left: 50%; top: -11px; transform: translateX(-50%);
+  border-left: 5px solid transparent; border-right: 5px solid transparent;
+  border-bottom: 12px solid var(--brand-heading); }
+.nv-balloon-dart::after {                                    /* the fletching */
+  content: ""; position: absolute; left: 50%; bottom: -2px; transform: translateX(-50%);
+  width: 16px; height: 8px; background: var(--brand-accent); opacity: .8;
+  clip-path: polygon(0 100%, 50% 0, 100% 100%); }
+.nv-balloon-dart.nv-balloon-flying { transition: transform .34s cubic-bezier(.3,0,.4,1); }
+.nv-balloon-cell {
+  --balloon-fill: #e0322f; --balloon-shade: #b81f1d;
+  position: relative; height: calc(82% * var(--bp-scale)); width: auto; aspect-ratio: 27 / 34;
+  max-width: 86%;                                            /* fit the row height AND the column width */
+  border-radius: 50% 50% 48% 48% / 55% 55% 45% 45%;
+  background: radial-gradient(circle at 34% 30%, #fff6 0 12%, transparent 42%),
+              linear-gradient(160deg, var(--balloon-fill) 0%, var(--balloon-shade) 100%);
+  transform-origin: 50% 100%; transition: transform .15s ease, opacity .3s ease;
+  filter: drop-shadow(2px 6px 4px rgba(0,0,0,.28)); }         /* lift off the back wall */
+/* the specific balloon the current release will hit — walks up the aimed column as power sweeps */
+.nv-balloon-cell.nv-balloon-targeted {
+  transform: scale(1.18);
+  filter: drop-shadow(0 0 9px var(--brand-accent)) drop-shadow(2px 7px 5px rgba(0,0,0,.22));
+  animation: nv-balloon-pulse .6s ease-in-out infinite; }
+@keyframes nv-balloon-pulse { 0%,100% { transform: scale(1.12); } 50% { transform: scale(1.24); } }
+.nv-balloon-cell::after {                                    /* the tie / string */
+  content: ""; position: absolute; left: 50%; bottom: -6px; width: 1px; height: 6px;
+  margin-left: -1px; background: rgba(0,0,0,.35); }
+.nv-balloon-knot {
+  position: absolute; left: 50%; bottom: -3px; width: 5px; height: 5px; margin-left: -2.5px;
+  background: var(--balloon-shade); border-radius: 0 0 50% 50%; }
+.nv-balloon-cell[data-swatch="blue"]   { --balloon-fill: #2f7de0; --balloon-shade: #1d59b8; }
+.nv-balloon-cell[data-swatch="green"]  { --balloon-fill: #2faa5a; --balloon-shade: #1d8044; }
+.nv-balloon-cell[data-swatch="gold"]   { --balloon-fill: #e0a92f; --balloon-shade: #b8851d; }
+.nv-balloon-cell[data-swatch="purple"] { --balloon-fill: #8a3fd0; --balloon-shade: #6a2ba8; }
+.nv-balloon-cell.nv-balloon-aimed { transform: scale(1.12); filter: drop-shadow(0 0 6px var(--brand-accent)); }
+.nv-balloon-cell.nv-balloon-gone { animation: nv-balloon-burst .4s ease-out forwards; pointer-events: none; }
+/* vertical power meter */
+.nv-balloon-meter { flex: 0 0 auto; display: flex; align-items: stretch; }
+.nv-balloon-power {
+  position: relative; width: 30px; min-height: 240px; align-self: stretch;
+  border: 2px solid var(--brand-line); border-radius: 15px;
+  background: var(--brand-light); overflow: hidden; }
+.nv-balloon-bands { position: absolute; inset: 0; }
+.nv-balloon-mark {                                          /* per-row target height on the power meter */
+  position: absolute; left: 0; right: 0; height: 0;
+  border-top: 2px dashed var(--brand-accent); opacity: .5; }
+.nv-balloon-fill {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 0%;
+  background: linear-gradient(0deg, var(--brand-accent), var(--brand-heading));
+  opacity: .8; }
+.nv-balloon-controls { display: flex; gap: .5rem; align-items: center; margin: 0 0 .7rem; }
+.nv-balloon-aim-left, .nv-balloon-aim-right { min-width: 3rem; font-size: 1.1rem; }
+.nv-balloon-tally { font-family: var(--brand-font-head); font-weight: 700; margin: .2rem 0 .8rem; }
+.nv-balloon-count, .nv-balloon-level { color: var(--brand-accent); }
+.nv-balloon-panels { margin-top: .4rem; }
+.nv-balloon-panel {
+  border: 1px solid var(--brand-line); border-radius: var(--brand-radius, 10px);
+  padding: .8rem 1rem; margin: 0; }
+.nv-balloon-q { font-weight: 600; margin-bottom: .55rem; }
+.nv-balloon-qnum { color: var(--brand-accent); font-weight: 700; margin-right: .25rem; }
+.nv-balloon-opts { display: grid; gap: .35rem; margin-bottom: .7rem; }
+.nv-balloon-opt {
+  display: flex; gap: .5rem; align-items: flex-start; padding: .4rem .6rem;
+  border: 1px solid var(--brand-line); border-radius: var(--brand-radius, 10px); cursor: pointer; }
+.nv-balloon-opt:hover { border-color: var(--brand-accent); }
+.nv-balloon-opt.nv-balloon-right { border-color: var(--brand-correct); background: #e9faf1; }
+.nv-balloon-opt.nv-balloon-wrong { border-color: var(--brand-incorrect); background: #fbeceb; }
+.nv-balloon-fb { display: none; margin-top: .6rem; padding: .6rem .8rem; border-radius: var(--brand-radius, 10px); }
+.nv-balloon-fb.show { display: block; }
+.nv-balloon-fb.ok { background: #e9faf1; color: var(--brand-heading); }
+.nv-balloon-fb.no { background: #fbeceb; color: var(--brand-heading); }
+.nv-balloon-restart { margin-top: .7rem; }
+.nv-balloon-empty .nv-balloon-instr { color: var(--brand-ink-soft); font-style: italic; }
+@keyframes nv-balloon-burst {
+  0%   { transform: scale(1); opacity: 1; }
+  35%  { transform: scale(1.28); opacity: 1; }
+  100% { transform: scale(.1); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .nv-balloon-cell { transition: none; }
+  .nv-balloon-cell.nv-balloon-targeted { animation: none; transform: scale(1.18); }
+  .nv-balloon-cell.nv-balloon-gone { animation: none; opacity: 0; transform: scale(.2); }
+  .nv-balloon-dart, .nv-balloon-dart.nv-balloon-flying { transition: none; }
+  .nv-balloon-proj { transition: none; } }
+
+/* shootingGallery — MOVING-TARGET arcade board (distinct from dunkBooth's timing meter + balloonPop's
+   static board: here the quarry SLIDES). Two blue WATER rows (aim top OR bottom); each row carries
+   several ducks, every one moving at its own speed (its `left` set per-frame by rAF). A crosshair
+   (reticle) moves left/right and jumps between rows; firing hits the nearest live duck in the AIMED
+   row under it. The top row is faster + tighter. Ducks flash on a hit; a miss drops a splash. Ducks
+   are zero-asset emoji glyphs keyed on data-quarry. Duck count / speed / window escalate on a clear. */
+.nv-gallery-instr { font-family: var(--brand-font-head); font-weight: 700; margin-bottom: .5rem; }
+.nv-gallery-prompt { margin-bottom: .9rem; }
+.nv-gallery-diffs { display: flex; gap: .4rem; margin: .2rem 0 .7rem; }
+.nv-gallery-diff {
+  padding: .35rem .9rem; border: 2px solid var(--brand-heading);
+  background: var(--brand-surface); color: var(--brand-heading);
+  border-radius: var(--brand-radius, 10px); cursor: pointer; font-size: .9rem; font-weight: 600; }
+.nv-gallery-diff:hover { border-color: var(--brand-accent); color: var(--brand-accent); }
+.nv-gallery-diff-on {                                          /* selected: filled, high contrast */
+  background: var(--brand-heading); color: var(--brand-surface); border-color: var(--brand-heading); }
+.nv-gallery-stage { margin: .4rem 0 .9rem; }
+/* the booth SCENE: a curtained back wall with two water rows, and a gun at the front */
+.nv-gallery-scene {
+  position: relative; min-height: 300px; overflow: hidden;
+  border: 3px solid var(--brand-heading); border-radius: var(--brand-radius, 10px);
+  background: linear-gradient(180deg, #f4ede0 0%, #efe6d4 100%); }
+.nv-gallery-backdrop {                                         /* striped carnival curtain across the top */
+  position: absolute; left: 0; right: 0; top: 0; height: 20%; z-index: 0; pointer-events: none;
+  background: repeating-linear-gradient(90deg, #d24b3f 0 24px, #f5ede0 24px 48px);
+  border-bottom: 3px solid rgba(0,0,0,.16);
+  clip-path: polygon(0 0, 100% 0, 100% 68%, 92% 100%, 84% 68%, 76% 100%, 68% 68%, 60% 100%, 52% 68%,
+    44% 100%, 36% 68%, 28% 100%, 20% 68%, 12% 100%, 8% 68%, 0 100%); }   /* scalloped valance hem */
+/* the play area: two water rows, each holding several ducks */
+.nv-gallery-lanes {
+  position: absolute; left: 3%; right: 3%; top: 22%; bottom: 18%; z-index: 2;
+  display: grid; grid-template-rows: repeat(2, 1fr); gap: 5%; }
+.nv-gallery-lanes:focus { outline: 3px solid var(--brand-accent); outline-offset: 3px; }
+/* a WATER row: blue channel with moving ripple stripes; the ducks sit on it */
+.nv-gallery-lane {
+  position: relative; overflow: hidden; border-radius: 10px;
+  border: 2px solid rgba(20,80,140,.35);
+  background:
+    repeating-linear-gradient(92deg, rgba(255,255,255,.10) 0 6px, transparent 6px 20px),
+    linear-gradient(180deg, #4aa3e0 0%, #2f7fc4 55%, #1f6bb0 100%);
+  box-shadow: inset 0 -6px 10px rgba(0,0,0,.18), inset 0 3px 6px rgba(255,255,255,.35); }
+.nv-gallery-lane::before {                                     /* a drifting highlight = moving water */
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: repeating-linear-gradient(90deg, rgba(255,255,255,.14) 0 3px, transparent 3px 26px);
+  animation: nv-gallery-water 4s linear infinite; }
+.nv-gallery-lane::after {                                      /* the waterline the ducks ride on */
+  content: ""; position: absolute; left: 0; right: 0; bottom: 30%; height: 2px;
+  background: rgba(255,255,255,.35); }
+@keyframes nv-gallery-water { from { background-position: 0 0; } to { background-position: 52px 0; } }
+.nv-gallery-lane.nv-gallery-aimed {                            /* the row the crosshair is on */
+  border-color: var(--brand-accent);
+  box-shadow: inset 0 -6px 10px rgba(0,0,0,.18), inset 0 3px 6px rgba(255,255,255,.35), 0 0 0 2px var(--brand-accent); }
+.nv-gallery-target {
+  position: absolute; left: 50%; bottom: 24%; z-index: 3;
+  transform: translateX(-50%); font-size: 1.9rem; line-height: 1;
+  filter: drop-shadow(1px 3px 2px rgba(0,0,0,.28)); }
+.nv-gallery-target::before { content: "\1F986"; display: inline-block; }   /* duck (default) */
+.nv-gallery-target[data-quarry="star"]::before     { content: "\2B50"; }
+.nv-gallery-target[data-quarry="balloon"]::before   { content: "\1F388"; }
+.nv-gallery-target[data-quarry="can"]::before        { content: "\1F96B"; }
+.nv-gallery-target[data-quarry="bullseye"]::before   { content: "\1F3AF"; }
+.nv-gallery-target.nv-gallery-facing-left::before { transform: scaleX(-1); }   /* face the travel direction */
+.nv-gallery-target.nv-gallery-under {                          /* lit while a shot is loaded + aligned */
+  animation: nv-gallery-pulse .6s ease-in-out infinite;
+  filter: drop-shadow(0 0 8px var(--brand-accent)) drop-shadow(1px 3px 2px rgba(0,0,0,.22)); }
+@keyframes nv-gallery-pulse { 0%,100% { transform: translateX(-50%) scale(1); } 50% { transform: translateX(-50%) scale(1.18); } }
+/* a HIT: the duck FLASHES bright, then topples and sinks */
+.nv-gallery-target.nv-gallery-hit { animation: nv-gallery-flash .9s ease-out forwards; pointer-events: none; }
+@keyframes nv-gallery-flash {
+  0%   { filter: brightness(3) drop-shadow(0 0 10px #fff); transform: translateX(-50%) scale(1.3); }
+  16%  { filter: brightness(1) drop-shadow(0 0 2px #fff); transform: translateX(-50%) scale(1); }
+  32%  { filter: brightness(3) drop-shadow(0 0 10px #fff); transform: translateX(-50%) scale(1.25); }
+  48%  { filter: brightness(1); transform: translateX(-50%) scale(1) rotate(0); }
+  100% { filter: brightness(1); transform: translateX(-50%) translateY(26px) scale(.5) rotate(90deg); opacity: 0; } }
+/* a MISS: a water splash at the crosshair point, fading out */
+.nv-gallery-splash {
+  position: absolute; bottom: 26%; z-index: 4; width: 22px; height: 22px; margin-left: -11px;
+  border: 3px solid rgba(255,255,255,.85); border-radius: 50%; pointer-events: none;
+  animation: nv-gallery-splash .9s ease-out forwards; }
+@keyframes nv-gallery-splash {
+  0%   { transform: scale(.2); opacity: .95; }
+  100% { transform: scale(1.8); opacity: 0; } }
+/* the crosshair: a ring the engine re-parents into the aimed water row, at reticleX */
+.nv-gallery-reticle {
+  position: absolute; left: 50%; top: 50%; width: 30px; height: 30px; margin: -15px 0 0 -15px;
+  z-index: 5; transform: none; pointer-events: none; transition: left .08s linear; }
+.nv-gallery-reticle::before {                                  /* the sight ring */
+  content: ""; position: absolute; inset: 0; border: 2px solid #d81f10; border-radius: 50%;
+  box-shadow: 0 0 0 2px rgba(255,255,255,.7); }
+.nv-gallery-reticle::after {                                   /* crosshair center dot */
+  content: ""; position: absolute; left: 50%; top: 50%; width: 4px; height: 4px;
+  margin: -2px 0 0 -2px; background: #d81f10; border-radius: 50%; }
+.nv-gallery-reticle.nv-gallery-firing::before { animation: nv-gallery-recoil .22s ease-out; }
+@keyframes nv-gallery-recoil { 0% { transform: scale(1); } 40% { transform: scale(1.5); border-color: var(--brand-accent); } 100% { transform: scale(1); } }
+.nv-gallery-gun {                                              /* the barrel at the front, aims toward the crosshair */
+  position: absolute; left: 50%; bottom: 0; z-index: 6; width: 12px; height: 46px;
+  transform-origin: 50% 100%; transform: translateX(-50%);
+  background: linear-gradient(180deg, var(--brand-heading) 0%, #333 100%);
+  border-radius: 4px 4px 0 0; pointer-events: none; }
+.nv-gallery-controls { display: flex; gap: .5rem; align-items: center; margin: 0 0 .7rem; flex-wrap: wrap; }
+.nv-gallery-aim-left, .nv-gallery-aim-right, .nv-gallery-aim-up, .nv-gallery-aim-down { min-width: 3rem; font-size: 1.1rem; }
+.nv-gallery-fire { font-weight: 700; }
+.nv-gallery-tally { font-family: var(--brand-font-head); font-weight: 700; margin: .2rem 0 .8rem; }
+.nv-gallery-count, .nv-gallery-level { color: var(--brand-accent); }
+.nv-gallery-panels { margin-top: .4rem; }
+.nv-gallery-panel {
+  border: 1px solid var(--brand-line); border-radius: var(--brand-radius, 10px);
+  padding: .8rem 1rem; margin: 0; }
+.nv-gallery-q { font-weight: 600; margin-bottom: .55rem; }
+.nv-gallery-qnum { color: var(--brand-accent); font-weight: 700; margin-right: .25rem; }
+.nv-gallery-opts { display: grid; gap: .35rem; margin-bottom: .7rem; }
+.nv-gallery-opt {
+  display: flex; gap: .5rem; align-items: flex-start; padding: .4rem .6rem;
+  border: 1px solid var(--brand-line); border-radius: var(--brand-radius, 10px); cursor: pointer; }
+.nv-gallery-opt:hover { border-color: var(--brand-accent); }
+.nv-gallery-opt.nv-gallery-right { border-color: var(--brand-correct); background: #e9faf1; }
+.nv-gallery-opt.nv-gallery-wrong { border-color: var(--brand-incorrect); background: #fbeceb; }
+.nv-gallery-fb { display: none; margin-top: .6rem; padding: .6rem .8rem; border-radius: var(--brand-radius, 10px); }
+.nv-gallery-fb.show { display: block; }
+.nv-gallery-fb.ok { background: #e9faf1; color: var(--brand-heading); }
+.nv-gallery-fb.no { background: #fbeceb; color: var(--brand-heading); }
+.nv-gallery-restart { margin-top: .7rem; }
+.nv-gallery-empty .nv-gallery-instr { color: var(--brand-ink-soft); font-style: italic; }
+
+/* ===================== shared carnival physics interaction =====================
+   Pointer users pull the visible projectile and release it. Range controls plus
+   the command button provide the equivalent keyboard/touch fallback. Matter.js
+   owns flight and collision; these elements are only the visual layer. */
+.nv-physics-setting {
+  display: inline-grid; grid-template-columns: auto minmax(90px, 150px);
+  align-items: center; gap: .45rem; color: var(--brand-heading);
+  font-family: var(--brand-font-head); font-size: .86rem; font-weight: 700;
+}
+.nv-physics-setting input[type="range"] { width: 100%; accent-color: var(--brand-accent); }
+.nv-physics-handle {
+  position: absolute; z-index: 9; margin: 0; padding: 0; border: 0;
+  cursor: grab; touch-action: none; user-select: none;
+}
+.nv-physics-handle:active { cursor: grabbing; }
+.nv-physics-handle:focus-visible { outline: 3px solid var(--brand-accent); outline-offset: 5px; }
+.nv-physics-handle:disabled { cursor: default; opacity: .58; }
+.nv-physics-guide {
+  position: absolute; z-index: 7; inset: 0; pointer-events: none; overflow: hidden;
+}
+.nv-physics-dot {
+  position: absolute; width: 8px; height: 8px; margin: -4px 0 0 -4px;
+  border: 2px solid rgba(255,255,255,.9); border-radius: 50%;
+  background: var(--brand-accent);
+  box-shadow: 0 1px 3px rgba(0,0,0,.45);
+}
+.nv-physics-flight { position: absolute !important; z-index: 12 !important; pointer-events: none !important; }
+
+/* Dunk Booth: a heavy ball arcs from the near-left throw line into the plate. */
+.nv-dunk-stage {
+  position: relative; min-height: 255px; align-items: center;
+  border: 2px solid var(--brand-heading); border-radius: var(--brand-radius, 8px);
+  padding: 14px 16px; overflow: hidden;
+  background: linear-gradient(180deg, #d7eefc 0 68%, #58a148 68% 100%);
+}
+.nv-dunk-booth { margin-left: auto; z-index: 2; background: #f4ede0; }
+.nv-dunk-plate {
+  position: absolute; left: 12px; top: 106px; width: 44px; height: 44px;
+  border: 5px solid #f5ede0; border-radius: 50%;
+  background: radial-gradient(circle, #f5ede0 0 18%, #d9352a 19% 39%, #f5ede0 40% 60%, #d9352a 61%);
+  box-shadow: 0 2px 5px rgba(0,0,0,.3);
+}
+.nv-dunk-meter {
+  flex: 0 1 290px; min-width: 220px; z-index: 3;
+  display: grid; gap: .55rem; align-content: end; padding-bottom: 6px;
+}
+.nv-dunk-track, .nv-dunk-zone, .nv-dunk-indicator { display: none; }
+.nv-dunk-ball {
+  left: 42px; bottom: 38px; width: 28px; height: 28px; border-radius: 50%;
+  background: radial-gradient(circle at 32% 26%, #fff8 0 10%, transparent 12%),
+              linear-gradient(145deg, #e34635, #a51f18);
+  box-shadow: 0 3px 5px rgba(0,0,0,.38);
+}
+.nv-dunk-guide { inset: 0; }
+
+/* Balloon darts: fast, nearly flat flight with a draggable fletched dart. */
+.nv-balloon-stage { display: block; }
+.nv-balloon-scene { min-height: 350px; }
+.nv-balloon-launcher { pointer-events: auto; }
+.nv-balloon-dart {
+  appearance: none; -webkit-appearance: none; border: 0; padding: 0;
+  cursor: grab; touch-action: none;
+}
+.nv-balloon-dart:disabled { opacity: .62; }
+.nv-balloon-dart.nv-physics-flight {
+  transform-origin: 50% 50%;
+  transition: none;
+}
+.nv-balloon-guide { inset: 0; }
+.nv-balloon-controls { flex-wrap: wrap; }
+
+/* Shooting Gallery: a real elastic launch affordance replaces the hitscan gun. */
+.nv-gallery-scene { min-height: 340px; }
+.nv-gallery-sling {
+  position: absolute; left: 50%; bottom: 0; z-index: 7;
+  width: 74px; height: 78px; transform: translateX(-50%); pointer-events: none;
+}
+.nv-gallery-sling::before,
+.nv-gallery-sling::after {
+  content: ""; position: absolute; bottom: 0; width: 12px; height: 76px;
+  border-radius: 8px 8px 2px 2px; background: linear-gradient(90deg, #6d3b1d, #b8753c);
+  transform-origin: 50% 100%;
+}
+.nv-gallery-sling::before { left: 13px; transform: rotate(-15deg); }
+.nv-gallery-sling::after { right: 13px; transform: rotate(15deg); }
+.nv-gallery-band {
+  position: absolute; z-index: 8; height: 5px; border-radius: 3px;
+  transform-origin: 0 50%; pointer-events: none;
+  background: linear-gradient(180deg, #e44c42, #8d1713);
+  box-shadow: 0 1px 2px rgba(0,0,0,.35);
+}
+.nv-gallery-pouch {
+  left: calc(50% - 11px); bottom: 52px; width: 22px; height: 22px; border-radius: 50%;
+  background: radial-gradient(circle at 33% 28%, #fff8 0 11%, transparent 13%),
+              linear-gradient(145deg, #eee, #777);
+  box-shadow: 0 2px 4px rgba(0,0,0,.4);
+}
+.nv-gallery-guide { inset: 0; }
+.nv-gallery-controls { justify-content: center; }
+
+/* Physics mode uses a side-view camera so height and distance read as one clear
+   parabolic shot. The whole field is the pull surface; sliders remain the
+   keyboard-accessible fallback, while directional button clusters step aside. */
+.nv-physics-mode .nv-physics-armed {
+  cursor: grab; touch-action: none; user-select: none;
+}
+.nv-physics-mode .nv-physics-dragging { cursor: grabbing; }
+.nv-physics-mode :is(
+  .nv-balloon-aim-left, .nv-balloon-aim-right,
+  .nv-gallery-aim-left, .nv-gallery-aim-right,
+  .nv-gallery-aim-up, .nv-gallery-aim-down
+) { display: none; }
+.nv-physics-mode :is(.nv-balloon-controls,.nv-gallery-controls) {
+  justify-content: flex-start; padding-top: .45rem;
+}
+
+/* Dunk Booth: launcher left, booth right, enough sky for a legible arc. */
+.nv-physics-mode .nv-dunk-stage {
+  display: block; min-height: 370px; padding: 0; overflow: hidden;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.28), transparent 50%),
+    linear-gradient(180deg, #bfe3f7 0 74%, #4f9e43 74% 100%);
+}
+.nv-physics-mode .nv-dunk-booth {
+  position: absolute; right: 18px; bottom: 18px; width: 200px; height: 240px;
+  margin: 0; z-index: 3;
+}
+.nv-physics-mode .nv-dunk-plate { left: 9px; top: 122px; }
+.nv-physics-mode .nv-dunk-ball { left: 105px; bottom: 52px; }
+.nv-physics-mode .nv-dunk-meter {
+  position: absolute; z-index: 10; left: 16px; top: 14px;
+  width: min(255px, calc(100% - 250px)); min-width: 210px;
+  padding: 10px 12px; border: 1px solid rgba(20,45,55,.18);
+  border-radius: 8px; background: rgba(255,255,255,.82);
+  backdrop-filter: blur(3px);
+}
+
+/* Balloon Darts: a flat side-scroll stall with the launcher in the foreground
+   left and the balloon wall at range on the right. */
+.nv-physics-mode .nv-balloon-scene {
+  min-height: 390px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.22), transparent 56%),
+    linear-gradient(180deg, #bfe3f7 0 74%, #4f9e43 74% 100%);
+}
+.nv-physics-mode .nv-balloon-wall { display: none; }
+.nv-physics-mode .nv-balloon-canopy {
+  height: 11%; clip-path: none; opacity: .95;
+}
+.nv-physics-mode .nv-balloon-floor {
+  top: 74%; clip-path: none;
+  background:
+    repeating-linear-gradient(92deg, rgba(255,255,255,.06) 0 3px, transparent 3px 10px),
+    linear-gradient(180deg, #5cab49, #3f8237);
+}
+.nv-physics-mode .nv-balloon-back {
+  left: 57%; right: 3%; top: 17%; height: 58%;
+}
+.nv-physics-mode .nv-balloon-grid {
+  left: 59%; right: 5%; top: 20%; height: 51%;
+}
+.nv-physics-mode .nv-balloon-launcher { left: 22%; bottom: 48px; }
+
+/* Shooting Gallery: the moving lanes become the down-range target bank. */
+.nv-physics-mode .nv-gallery-scene {
+  min-height: 390px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.25), transparent 58%),
+    linear-gradient(180deg, #c7e6f5 0 76%, #efe6d4 76% 100%);
+}
+.nv-physics-mode .nv-gallery-backdrop { height: 13%; }
+.nv-physics-mode .nv-gallery-lanes {
+  left: 45%; right: 3%; top: 18%; bottom: 19%;
+}
+.nv-physics-mode .nv-gallery-sling { left: 24%; bottom: 14px; }
+.nv-physics-mode .nv-gallery-pouch {
+  left: calc(24% - 11px); bottom: 66px;
+}
+
+@media (max-width: 620px) {
+  .nv-physics-setting { grid-template-columns: auto minmax(72px, 1fr); flex: 1 1 135px; }
+  .nv-physics-mode .nv-dunk-stage { min-height: 360px; }
+  .nv-physics-mode .nv-dunk-booth { right: 8px; width: 154px; height: 218px; }
+  .nv-physics-mode .nv-dunk-plate { top: 112px; }
+  .nv-physics-mode .nv-dunk-meter {
+    left: 10px; top: 10px; width: calc(100% - 20px); min-width: 0;
+    display: flex; flex-wrap: wrap; gap: .4rem;
+  }
+  .nv-physics-mode .nv-dunk-meter .nv-physics-setting { flex: 1 1 120px; }
+  .nv-physics-mode .nv-dunk-ball { left: 90px; bottom: 44px; }
+  .nv-physics-mode .nv-balloon-scene,
+  .nv-physics-mode .nv-gallery-scene { min-height: 360px; }
+  .nv-physics-mode .nv-balloon-back { left: 50%; right: 2%; }
+  .nv-physics-mode .nv-balloon-grid { left: 52%; right: 4%; }
+  .nv-physics-mode .nv-balloon-launcher { left: 22%; }
+  .nv-physics-mode .nv-gallery-lanes { left: 39%; right: 2%; }
+  .nv-physics-mode .nv-gallery-sling { left: 24%; }
+  .nv-physics-mode .nv-gallery-pouch { left: calc(24% - 11px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .nv-physics-flight { transition: none !important; animation: none !important; }
+}
+
+/* --- ROOT FIX (James, 2026-07-27): every review-game element OWNS an explicit background + a
+   contrasting ink, so its text is legible on ANY surface (the white page OR a colored quiz frame)
+   and NEVER inherits a color that can match its background. No band-aids, no reliance on what is
+   behind it. Applies to all three arcade games identically. --- */
+.nv-gallery, .nv-dunk, .nv-balloon {
+  background: var(--brand-light); color: var(--brand-ink); padding: 1.25rem;
+}
+.nv-gallery-instr, .nv-dunk-instr, .nv-balloon-instr,
+.nv-gallery-prompt, .nv-dunk-prompt, .nv-balloon-prompt,
+.nv-gallery-q, .nv-dunk-q, .nv-balloon-q,
+.nv-gallery-tally, .nv-dunk-tally, .nv-balloon-tally {
+  color: var(--brand-heading);
+}
+.nv-gallery-panel, .nv-dunk-panel, .nv-balloon-panel {
+  background: var(--brand-surface); color: var(--brand-ink);
+}
+.nv-gallery-opt, .nv-dunk-opt, .nv-balloon-opt {
+  background: var(--brand-light); color: var(--brand-ink);
+}
+/* inline emphasis inside a game inherits the element's own ink (never the section's forced color) */
+.nv-gallery :where(strong,em,a,li,p), .nv-dunk :where(strong,em,a,li,p),
+.nv-balloon :where(strong,em,a,li,p) { color: inherit; }
+@media (prefers-reduced-motion: reduce) {
+  .nv-gallery-lane::before { animation: none; }
+  .nv-gallery-target.nv-gallery-under { animation: none; }
+  .nv-gallery-target.nv-gallery-hit { animation: none; opacity: 0; }   /* flash off; duck just clears */
+  .nv-gallery-splash { animation: none; opacity: 0; }
+  .nv-gallery-reticle { transition: none; }
+  .nv-gallery-reticle.nv-gallery-firing::before { animation: none; } }
+
+/* ---- poll: no-right-answer check-in question ---- */
+.nv-poll-instr { font-family: var(--brand-font-head); font-weight: 700; margin-bottom: .5rem; }
+.nv-poll-prompt { margin-bottom: .9rem; font-size: 1.05rem; }
+.nv-poll-opts { display: flex; flex-direction: column; gap: .5rem; margin-bottom: .8rem; }
+.nv-poll-opt {
+  text-align: left; padding: .75rem 1rem; cursor: pointer; font: inherit;
+  border: 2px solid var(--brand-line, rgba(0,0,0,.15)); border-radius: var(--brand-radius, 8px);
+  background: var(--brand-light, #fff); color: var(--brand-ink);
+}
+.nv-poll-opt:hover:not(:disabled) { border-color: var(--brand-accent); }
+.nv-poll-opt:disabled { cursor: default; opacity: .55; }
+.nv-poll-opt.nv-poll-picked { border-color: var(--brand-accent); background: #eefaf3; opacity: 1; font-weight: 700; }
+.nv-poll-reveal-wrap[hidden] { display: none; }
+.nv-poll-reveal { margin-top: .4rem; padding: .8rem 1rem; border-radius: var(--brand-radius, 10px);
+  background: #eefaf3; color: var(--brand-heading); }
+
+/* ---- Reflection (C7: free-text / open-response, non-graded, completion-only) ---- */
+.nv-reflection { background: var(--brand-surface); border-radius: var(--brand-radius-lg); padding: 1.4rem 1.6rem; margin: var(--brand-gap) 0; }
+.nv-rf-instr { font-family: var(--brand-font-head); font-weight: 700; margin-bottom: .6rem; }
+.nv-rf-prompt { margin-bottom: 1rem; }
+.nv-rf-input { width: 100%; box-sizing: border-box; min-height: 7.5rem; padding: .8rem 1rem; border: 1px solid var(--brand-line); border-radius: 10px; font: inherit; line-height: 1.55; resize: vertical; background: #fff; color: inherit; }
+.nv-rf-input:focus { outline: 2px solid var(--brand-accent); outline-offset: 1px; }
+.nv-rf-input[readonly] { background: var(--brand-surface); opacity: .85; }
+.nv-rf-submit { min-width: 8rem; margin-top: 1rem; }
+.nv-rf-nudge .nv-rf-input { border-color: var(--brand-incorrect); }
+.nv-rf-answer { margin-top: 1.2rem; padding: 1rem 1.2rem; border-radius: 10px; background: rgba(255,255,255,.55); border-left: 5px solid var(--brand-accent); }
+.nv-rf-label { font-family: var(--brand-font-head); font-weight: 700; margin-bottom: .4rem; }
+.nv-rf-model { margin-bottom: 1rem; }
+.nv-rf-rubric ul { margin: .3rem 0 0; padding-left: 1.2rem; }
+.nv-rf-rubric li { margin: .2rem 0; }
+.nv-rf-done { margin-top: 1rem; font-weight: 600; color: var(--brand-accent-ink); }
+
+/* ---- wordScramble: formative anagram game ---- */
+.nv-scr-instr { font-family: var(--brand-font-head); font-weight: 700; margin-bottom: .5rem; }
+.nv-scr-prompt { margin-bottom: .9rem; }
+.nv-scr-word { display: flex; flex-wrap: wrap; gap: .35rem .5rem; align-items: flex-end;
+  font-family: var(--brand-font-head); margin-bottom: 1rem; }
+.nv-scr-slot { display: inline-flex; align-items: center; justify-content: center;
+  min-width: 1.3rem; min-height: 1.6rem; border-bottom: 3px solid var(--brand-line, rgba(0,0,0,.3));
+  font-weight: 700; font-size: 1.25rem; color: var(--brand-heading); transition: border-color .2s ease; }
+.nv-scr-slot.nv-scr-filled { border-color: var(--brand-accent); }
+.nv-scr-space { display: inline-block; width: .9rem; }
+.nv-scr-fixed { font-weight: 700; font-size: 1.25rem; color: var(--brand-heading); }
+.nv-scr-hint { margin: -.5rem 0 1rem; color: var(--brand-ink-soft, #556); font-size: .95rem; }
+.nv-scr-tiles { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: .8rem; }
+.nv-scr-tile {
+  min-width: 2.4rem; padding: .5rem .6rem; cursor: pointer; font: inherit; font-weight: 700;
+  border: 2px solid var(--brand-line, rgba(0,0,0,.15)); border-radius: var(--brand-radius, 8px);
+  background: var(--brand-light, #fff); color: var(--brand-ink);
+}
+.nv-scr-tile:hover:not(:disabled) { border-color: var(--brand-accent); }
+.nv-scr-tile:disabled { cursor: default; opacity: .35; }
+.nv-scr-tile.nv-scr-used { opacity: .35; }
+.nv-scr-clear { margin-bottom: .4rem; }
+.nv-scr-fb { display: none; margin-top: .4rem; padding: .6rem .8rem; border-radius: var(--brand-radius, 10px); }
+.nv-scr-fb.show { display: block; }
+.nv-scr-fb.ok { background: #e9faf1; color: var(--brand-heading); }
+.nv-scr-fb.no { background: #fbeceb; color: var(--brand-heading); }
+.nv-scr-done .nv-scr-clear { display: none; }
+
+
+/* ---- spotHazard: click-to-identify recognition game over a real photo/diagram ---- */
+.nv-sh-instr { font-family: var(--brand-font-head); font-weight: 700; margin-bottom: .5rem; }
+.nv-sh-prompt { margin-bottom: .7rem; }
+.nv-sh-status { font-family: var(--brand-font-head); font-weight: 700; color: var(--brand-heading);
+  margin-bottom: .6rem; }
+.nv-sh-stage { position: relative; display: inline-block; max-width: 100%; margin-bottom: .8rem; }
+.nv-sh-img { display: block; max-width: 100%; border-radius: var(--brand-radius, 8px); }
+.nv-sh-spot {
+  position: absolute; border: 2px dashed rgba(255,255,255,.75); border-radius: 6px;
+  background: rgba(0,0,0,.06); cursor: pointer; padding: 0;
+  box-shadow: 0 0 0 1px rgba(0,0,0,.25) inset;
+}
+.nv-sh-spot:hover:not(:disabled), .nv-sh-spot:focus-visible:not(:disabled) {
+  border-color: var(--brand-accent); background: rgba(0,0,0,.12);
+}
+.nv-sh-spot:disabled { cursor: default; }
+.nv-sh-spot.nv-sh-found { border-style: solid; border-color: var(--brand-correct); background: rgba(60,180,110,.28); }
+.nv-sh-spot.nv-sh-miss { border-style: solid; border-color: var(--brand-incorrect); background: rgba(200,70,70,.22); }
+.nv-sh-spot.nv-sh-locked { opacity: .9; }
+.nv-sh-fb { display: none; margin-top: .4rem; padding: .6rem .8rem; border-radius: var(--brand-radius, 10px); }
+.nv-sh-fb.show { display: block; }
+.nv-sh-fb.ok { background: #e9faf1; color: var(--brand-heading); }
+.nv-sh-fb.no { background: #fbeceb; color: var(--brand-heading); }
+
+/* Categorize real drag-and-drop (default interaction; the <select> stays as the a11y fallback,
+   switched back in via the "Show placement menus" toggle — nothing is lost, only added). */
+.nv-sort-zones { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: .8rem; margin: 0 0 1rem; }
+.nv-sort-zone {
+  min-height: 6rem; padding: .75rem; border: 2px dashed var(--brand-line);
+  border-radius: 12px; background: var(--brand-light); color: var(--brand-ink);
+}
+.nv-sort-zone.nv-sort-over { border-color: var(--brand-accent); background: #eef7ff; }
+.nv-sort-zone-title { display: block; margin-bottom: .55rem; font-weight: 800; color: var(--brand-heading); }
+.nv-sort-slot { display: flex; flex-wrap: wrap; gap: .4rem; align-items: flex-start; }
+.nv-sort-stack-label {
+  margin-bottom: .4rem; color: var(--brand-band-ink);
+  font-size: .82rem; font-weight: 800; letter-spacing: .02em; text-transform: uppercase;
+}
+.nv-sort-placed {
+  display: inline-flex; align-items: center; gap: .35rem; padding: .38rem .55rem;
+  border: 2px solid transparent; border-radius: 9px; background: var(--brand-surface);
+  color: var(--brand-ink); font: inherit; font-size: .88rem; cursor: pointer;
+}
+.nv-sort-placed.correct { border-color: var(--brand-correct); background: #e9faf1; color: #123b24; }
+.nv-sort-placed.incorrect { border-color: var(--brand-incorrect); background: #fbeceb; color: #3c1717; }
+.nv-sort-placed:hover, .nv-sort-placed:focus-visible { outline: 2px solid var(--brand-accent); outline-offset: 2px; }
+.nv-sort-placed-x { font-weight: 800; opacity: .7; }
+.nv-sort-item { cursor: grab; }
+.nv-sort-item.is-placed { opacity: .42; }
+.nv-sort-item.is-placed.correct, .nv-sort-item.is-placed.incorrect { opacity: 1; }
+.nv-sort-item[draggable="false"] { cursor: default; }
+.nv-sort--nomenus .nv-sort-pick { display: none; }
+.nv-sort-menus-toggle {
+  margin: 0 0 1rem; padding: .3rem .7rem; border: 1px solid var(--brand-line);
+  border-radius: 8px; background: transparent; color: var(--brand-band-ink);
+  font: inherit; font-size: .82rem; cursor: pointer;
+}
+.nv-sort-menus-toggle:hover, .nv-sort-menus-toggle:focus-visible { border-color: var(--brand-accent); }
+.nv-sort-menus-toggle[aria-pressed="true"] { background: var(--brand-light); color: var(--brand-ink); }
+@media (max-width: 620px) {
+  .nv-sort-zones { grid-template-columns: 1fr; }
+}
+/* Instant-mode terminal reveal (*Feedback:* instant): the correct answer appended to a missed row. */

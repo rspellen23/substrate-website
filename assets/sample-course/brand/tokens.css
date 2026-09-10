@@ -1,0 +1,26 @@
+/* Default theme tokens — neutral, no client identity. Players reference var(--brand-*) only.
+   Swap this file (+ brand.json, logo, fonts) per client; the contract is the --brand-* set below. */
+:root {
+  --brand-accent:        #3B82F6;
+  --brand-accent2:       #60A5FA;
+  --brand-accent-ink:    #1D4ED8;
+  --brand-heading:       #1F2937;
+  --brand-band-bg:       #1F2937;
+  --brand-band-ink:      #FFFFFF;
+  --brand-light:         #FFFFFF;
+  --brand-surface:       #F3F4F6;
+  --brand-line:          #E5E7EB;
+  --brand-page-bg:       #FFFFFF;
+  --brand-ink:           #1F2937;
+  --brand-ink-soft:      #6B7280;
+  --brand-note-bg:       #EFF6FF;
+  --brand-note-border:   #3B82F6;
+  --brand-correct:       #16A34A;
+  --brand-incorrect:     #DC2626;
+  --brand-font-body:     system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --brand-font-head:     system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --brand-radius:        14px;
+  --brand-radius-lg:     22px;
+  --brand-content-width: 820px;
+  --brand-gap:           1.6rem;
+}

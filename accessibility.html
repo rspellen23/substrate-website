@@ -3,20 +3,20 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Accessibility: Substrate</title>
-<meta name="description" content="What Substrate's course-generation pipeline checks automatically for accessibility, and what it doesn't cover.">
+<title>Accessibility: Our In-House System</title>
+<meta name="description" content="What our in-house system's course-generation pipeline checks automatically for accessibility, and what it doesn't cover.">
 <link rel="canonical" href="https://substrate.io/accessibility.html">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2232%22%20height%3D%2232%22%20viewBox%3D%220%200%2032%2032%22%3E%3Crect%20width%3D%2232%22%20height%3D%2232%22%20rx%3D%228%22%20fill%3D%22%231EB16A%22/%3E%3Cpath%20d%3D%22M9%2010h13M9%2015.5h9.5M9%2020h6.5%22%20stroke%3D%22white%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22/%3E%3C/svg%3E">
 <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/apple-touch-icon.png">
 <meta name="theme-color" content="#178650">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://substrate.io/accessibility.html">
-<meta property="og:site_name" content="Substrate">
-<meta property="og:title" content="Accessibility: Substrate">
-<meta property="og:description" content="What Substrate's course-generation pipeline checks automatically for accessibility, and what it doesn't cover.">
+<meta property="og:site_name" content="Our In-House System">
+<meta property="og:title" content="Accessibility: Our In-House System">
+<meta property="og:description" content="What our in-house system's course-generation pipeline checks automatically for accessibility, and what it doesn't cover.">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Accessibility: Substrate">
-<meta name="twitter:description" content="What Substrate's course-generation pipeline checks automatically for accessibility, and what it doesn't cover.">
+<meta name="twitter:title" content="Accessibility: Our In-House System">
+<meta name="twitter:description" content="What our in-house system's course-generation pipeline checks automatically for accessibility, and what it doesn't cover.">
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
   body { font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color:#0B2C37; background:#F9FAF8; line-height:1.65; }
@@ -40,9 +40,9 @@
 <body>
 
 <header>
-  <a href="Substrate.html">
+  <a href="index.html">
     <div class="logo-mark"><svg width="17" height="13" viewBox="0 0 17 13" fill="none"><path d="M2 2h13M2 6.5h9.5M2 11h6.5" stroke="white" stroke-width="2" stroke-linecap="round"></path></svg></div>
-    <span>Substrate</span>
+    <span>Our In-House System</span>
   </a>
 </header>
 
@@ -50,11 +50,11 @@
   <h1>Accessibility</h1>
   <div class="updated">Last updated: August 26, 2026</div>
 
-  <p>Substrate builds accessibility checks into the course-generation pipeline itself, so a course starts from a stronger baseline than most authoring tools produce by default. This page describes exactly what is automated today (and, just as importantly, what it doesn't cover), so you can plan any additional review your compliance requirements call for.</p>
+  <p>Our in-house system builds accessibility checks into the course-generation pipeline itself, so a course starts from a stronger baseline than most authoring tools produce by default. This page describes exactly what is automated today (and, just as importantly, what it doesn't cover), so you can plan any additional review your compliance requirements call for.</p>
 
   <h2>What's checked automatically on every build</h2>
   <ul>
-    <li><strong>Image alt text</strong>: every content image is checked for missing or non-descriptive alt text; Substrate drafts alt text at generation time so images aren't shipped undescribed.</li>
+    <li><strong>Image alt text</strong>: every content image is checked for missing or non-descriptive alt text; our in-house system drafts alt text at generation time so images aren't shipped undescribed.</li>
     <li><strong>Heading order</strong>: the generated document outline is checked so headings never skip a level (e.g. an h1 followed directly by an h3), which is what lets screen-reader users navigate by heading.</li>
     <li><strong>Color contrast</strong>: your brand's text/background color pairs are checked against WCAG AA thresholds (4.5:1 for normal text, 3:1 for large text) before the course ships.</li>
     <li><strong>Assessment controls</strong>: knowledge-check questions and answer options are checked to ensure every control has a real, readable label for assistive technology.</li>
@@ -71,14 +71,14 @@
   <p>These checks are a strong, automated <strong>floor</strong>, not a substitute for a full accessibility audit. They catch the most common and highest-impact gaps, but automated tooling cannot verify every WCAG success criterion: things like the accuracy of AI-drafted alt text, the logical reading order of complex layouts, or full screen-reader walkthroughs still benefit from human review. Findings are surfaced as warnings so you can fix them before publishing; they do not block a build, so it remains your responsibility to review and address them for content that must meet a specific compliance standard (e.g. WCAG 2.1 AA, Section 508).</p>
 
   <h2>Reporting an issue</h2>
-  <p>If you or your learners encounter an accessibility barrier in a Substrate-generated course or in the Substrate product itself, contact us at <a href="mailto:hello@substrate.io">hello@substrate.io</a> and we'll work with you to address it.</p>
+  <p>If you or your learners encounter an accessibility barrier in a course generated by our in-house system, contact us at <a href="mailto:hello@substrate.io">hello@substrate.io</a> and we'll work with you to address it.</p>
 </main>
 
 <footer>
   <nav class="legal-links">
     <a href="privacy.html">Privacy</a>·<a href="terms.html">Terms</a>·<a href="security.html">Security</a>
   </nav>
-  © <span id="y"></span> Substrate. All rights reserved.
+  © <span id="y"></span> Our In-House System. All rights reserved.
 </footer>
 <script>document.getElementById('y').textContent = new Date().getFullYear();</script>
 </body>
