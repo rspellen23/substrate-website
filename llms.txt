@@ -1,10 +1,10 @@
-# Our In-House System
+# Substrate
 
-> Our in-house system turns your Markdown or Word documents into branded, SCORM- and
+> Substrate turns your Markdown or Word documents into branded, SCORM- and
 > cmi5-ready microlearning courses. Upload your content, generate, publish to
 > any LMS.
 
-Our in-house system converts source documents (Markdown or Word today) into
+Substrate converts source documents (Markdown or Word today) into
 structured, sequenced microlearning courses with automatically-generated
 knowledge checks, then packages them for any LMS or LRS that supports
 SCORM 1.2, SCORM 2004, or cmi5/xAPI — including Workday Learning,

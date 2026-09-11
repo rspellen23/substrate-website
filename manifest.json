@@ -1,6 +1,6 @@
 {
-  "name": "Our In-House System",
-  "short_name": "In-House System",
+  "name": "Substrate",
+  "short_name": "Substrate",
   "description": "Turn any doc into a SCORM-ready course in minutes.",
   "start_url": "/index.html",
   "display": "standalone",
